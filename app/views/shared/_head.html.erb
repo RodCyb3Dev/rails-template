@@ -1,0 +1,15 @@
+<!--<title><%= Rails.configuration.application_name %></title>-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<%= favicon_link_tag 'favicon-tailwind.png' %>
+<%= render partial: 'shared/meta_tag' %>
+
+<%= csrf_meta_tags %>
+<%= csp_meta_tag %>
+
+<!-- Semantic-ui-flags-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/flag.min.css" />
+
+<%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+<%= stylesheet_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+<%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>

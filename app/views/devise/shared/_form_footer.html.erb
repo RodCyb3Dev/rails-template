@@ -1,0 +1,15 @@
+<p class="text-center text-gray-500 text-xs">
+  ©<%= start_year %> - <%= Date.today.year %> <%= Rails.configuration.application_name %>. All rights reserved.
+</p>
+
+<div class="text-center text-gray-500 text-xs mt-4">
+  <%= t('.you_agree_msg') %>
+  <br/>
+  <a class="hover:text-blue-700" href="/terms">
+    <%= t('.terms_reg_link') %>
+  </a> 
+  <%= t('.and_agree_msg') %>
+  <a class="hover:text-blue-700" href="/privacy">
+    <%= t('.privacy_reg_link') %>
+  </a>
+</div>

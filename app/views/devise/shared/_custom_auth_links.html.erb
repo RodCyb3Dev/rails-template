@@ -1,0 +1,17 @@
+<div>
+  <div id="social-platforms" class="ui big">
+    <h4 class="ui horizontal divider header">
+        <%= t('.authHeader') %>
+    </h4>
+    <!-- <%= link_to 'Twitter', user_twitter_omniauth_authorize_path %> -->
+    <%= link_to user_github_omniauth_authorize_path, title: 'GitHub', class: 'inline-block span btnlog btn-icon btn-github' do %>
+      <i class="fab fa-github"></i><span>GitHub</span>
+    <% end %>
+    <%= link_to user_google_oauth2_omniauth_authorize_path, title: 'Google', :class => 'inline-block btnlog btn-icon btn-googleplus' do %>
+      <i class="fab fa-google"></i><span>Google</span>
+    <% end %>
+    <%= link_to user_linkedin_omniauth_authorize_path, title: 'LinkedIn', class: 'inline-block btnlog btn-icon btn-linkedin' do %>
+      <i class="fab fa-linkedin"></i><span>LinkedIn</span>
+    <% end %>
+  </div>
+</div>

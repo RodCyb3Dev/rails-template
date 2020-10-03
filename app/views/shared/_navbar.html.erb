@@ -1,0 +1,100 @@
+<% if user_masquerade? %>
+  <div class="alert alert-warning text-center">
+    You're logged in as <b><%= current_user.name %> (<%= current_user.email %>)</b>
+    <%= link_to back_masquerade_path(current_user) do %><%= icon("fas", "times") %> Logout <% end %>
+  </div>
+<% end %>
+
+<!-- start Main Nav bg-white fixed w-full z-10 top-0 shadow -->
+<nav class="flex flex-wrap items-center justify-between p-4">
+  <div class="flex flex-shrink-0 mr-10">
+    <a class="text-xl text-indigo-500 font-semibold" href="/">
+      <span class="block lg:inline-block mt-4 lg:mt-0 lg:mr-8 text-blue-900 hover:text-blue-700">
+        <%= 
+          image_tag("favicon-tailwind.png", 
+          size: "42x42", 
+          title: "#{Rails.configuration.application_name}", 
+          alt: "#{Rails.configuration.application_name}",
+          class: "block lg:inline-block mt-4 lg:mt-0 lg:mr-8 text-blue-900 hover:text-blue-700") 
+        %>
+        <%= t'.brand_name', :default => Rails.configuration.application_name %>
+      </span>
+    </a>
+  </div>
+  <div class="block lg:hidden">
+    <button class="navbar-burger flex items-center py-2 px-3 text-indigo-500 rounded border border-indigo-500">
+      <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"></path></svg>
+    </button>
+  </div>
+  <div class="navbar-menu hidden lg:flex lg:flex-grow lg:items-center w-full lg:w-auto">
+    <div class="lg:mr-auto">
+      <a class="block lg:inline-block mt-4 lg:mt-0 mr-10 text-blue-900 hover:text-blue-700" href="/about"><%= t'.about_nav' %></a>
+      <a class="block lg:inline-block mt-4 lg:mt-0 mr-10 text-blue-900 hover:text-blue-700" href="#"><%= t'.contact_nav' %></a>
+      <a class="block lg:inline-block mt-4 lg:mt-0 text-blue-900 hover:text-blue-700" href="#"><%= t'.blog_page' %></a>
+    </div>
+    <div class="relative inline-block text-left">
+      <div class="rounded-md bg-white shadow-xs" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+        <div class="mt-4 lg:mt-0 mr-10 text-blue-900 hover:text-blue-700">
+          <!-- language links -->
+          <% if I18n.locale == :fi %>
+            <!-- English language -->
+            <%= link_to locale: "en" do %>
+              <li class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem" title="English language">
+                <i class="gb uk flag"></i> <%= t'.en_lang', :default => 'English' %>
+              </li>
+            <% end %>
+          <% else %>
+            <!-- Finnish language -->
+            <%= link_to locale: "fi" do %>
+              <li class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem" title="Finnish language">
+                <i class="fi flag"></i> <%=t '.fi_lang', :default => 'Finnish' %>
+              </li>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div>
+      <% if user_signed_in? %>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <%= link_to "#", id: "navbar-dropdown", class: "navbar-link dropdown-toggle", data: { target: "nav-account-dropdown", toggle: "dropdown" }, aria: { haspopup: true, expanded: false } do %>
+            <%= t'.user_account', :default => 'Account' %>
+            &nbsp;&nbsp;<%= image_tag gravatar_image_url(current_user.email, size: 40), height: 20, width: 20, class: "rounded" %>
+          <% end %>
+          <div class="navbar-dropdown is-right">
+            <%= link_to edit_user_registration_path, class:"navbar-item" do %>
+              <%= current_user.name %> 
+              <% if admin? %> 
+                &nbsp; <span class="tag is-warning">ADMIN</span> 
+              <% else %>
+                &nbsp; <span class="tag is-warning">Hei</span>
+              <% end %>
+            <% end %>
+            <% if current_user.admin? %>
+              <%= link_to rails_admin_path, class: "navbar-item" do %>
+                <i class="fas fa-user-shield"></i>&nbsp; Admin Dashboard
+              <%end%>
+              <%= link_to new_user_invitation_path, class: "navbar-item" do %>
+                <i class="far fa-paper-plane"></i>&nbsp; Invite
+              <% end %>
+            <% end %>
+            <%= link_to edit_user_registration_path, title: "#{current_user.name.to_s.humanize} account settings", class: "navbar-item" do %>
+              <i class="fas fa-user-cog"></i>&nbsp; Settings
+            <% end %>
+            <div class="dropdown-divider"></div>
+            <%= link_to destroy_user_session_path, method: :delete, title: 'Sign out', class:"navbar-item" do %>
+              <i class="fas fa-sign-out-alt"></i>&nbsp; Sign Out
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <%= link_to new_user_registration_path, title: 'Nauti muista palveluista', class:"block lg:inline-block mt-4 lg:mt-0 lg:mr-8 text-blue-900 hover:text-blue-700" do %>
+          <i class="fas fa-user-plus"></i>&nbsp; <%= t'.sign_up', :default => "Register" %>
+        <% end %>
+          <%= link_to new_user_session_path, title: 'Hanki lisää palveluita', class:"inline-block py-3 px-6 mt-4 lg:mt-0 leading-none text-white bg-indigo-500 hover:bg-indigo-600 rounded shadow" do %>
+            <i class="fas fa-sign-in-alt"></i>&nbsp; <%= t'.sign_in', :default => "Sign In" %>
+          <% end %>
+      <% end %>
+    </div>
+  </div>
+</nav>

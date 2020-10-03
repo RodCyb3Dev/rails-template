@@ -1,0 +1,83 @@
+<% content_for(:html_title) { t('about_page') } %>
+
+<% if user_signed_in? %>
+<!-- Nothing to display -->
+<% else %>
+  <!-- Show download  alert Modern with Badge -->
+  <div
+    class="float-right p-2 mt-2 mr-24 bg-indigo-800 text-indigo-100 leading-none lg:rounded-full flex lg:inline-flex"
+    role="alert">
+    <span
+      class="flex rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold mr-3">
+      <%= t".about_file_badge_new", :default => 'New' %>
+    </span>
+    <span class="font-semibold mr-2 text-left flex-auto">
+      <%= link_to_if(@current_user.nil?, icon('fas', 'download', t('.about_file_text', :default => "Sign in to download my CV")), new_user_session_path, class: 'text-white') %>
+    </span>
+    <svg class="fill-current opacity-75 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+      <path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z" />
+    </svg>
+  </div>
+<% end %>
+<!-- start about -->
+<section class="py-12 px-4">
+  <div class="mt-0 mb-3">
+    <div class="ui right floated small buttons px-3">
+      <% if current_user %>
+        <% if logged_in?(:root_admin) %>
+          <!-- Download Button -->
+          <div class="origin-top-right absolute right-0 mt-2 -mr-1 w-48 rounded-md shadow-lg" aria-labelledby="mobile-menu" role="menu">
+            <div class="py-1 rounded-md bg-white shadow-xs">
+              <a href="/somefile_1.pdf" class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out" role="menuitem">
+                <i class="download icon"></i> Download PDF <i class="fi flag"></i>
+              </a>
+              <a href="somefile_2.pdf" class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out" role="menuitem">
+                <i class="download icon"></i> Download PDF <i class="gb uk flag"></i>
+              </a>
+            </div>
+            <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
+              <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/>
+              </svg>
+              <span>Download</span>
+              <i class="fi flag"></i>
+            </button>
+          </div>
+          <!-- / Download Button -->
+        <% end %>
+        <!-- Preview Button -->
+        <div data-tooltip="<%=t ".tipwebcv"%>" data-position="top left">
+          <%= link_to pdfjs.reduced_path(file: "/somefile_1.pdf"), target: '_new', class: 'font-medium text-indigo-600 hover:text-indigo-500 transition duration-150 ease-in-out' do %>
+            <i class="paper plane outline icon"></i> <i class="gb uk flag"></i> View PDF
+          <% end %>
+        </div>
+        <div class="or" data-text="<%=t ".ortxt"%>"></div>
+
+        <div class="origin-top-right absolute right-0 mt-2 -mr-1 w-48 rounded-md shadow-lg" aria-labelledby="mobile-menu" role="menu">
+          <%= link_to pdfjs.reduced_path(file: "/somefile_2.pdf"), target: '_new', class: 'font-medium text-indigo-600 hover:text-indigo-500 transition duration-150 ease-in-out' do %>
+            <i class="paper plane outline icon"></i> <i class="fi flag"></i> View PDF
+          <% end %>
+        </div>
+        <!-- / Preview Button -->
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap -mx-4 mb-8">
+    <div class="lg:w-1/2 px-4 mb-4 lg:mb-0">
+      <%= image_tag("placeholders/pictures/male_avatar.svg", alt: "Avator", class: "rounded shadow-md") %>
+    </div>
+    <div class="lg:w-1/2 px-4">
+      <h2 class="text-4xl font-heading font-semibold">Michael Scott</h2>
+      <span class="text-xl">Regional Manager</span>
+      <p class="my-5">Former branch manager of the Scranton branch of Dunder Mifflin Paper Company, The Michael Scott Paper Company, and later Dunder Mifflin Sabre. Michael enjoys writing song parodies. </p>
+      <p class="my-5">Michael was born on March 15, 1962, at 11:23 AM, in Scranton, Pennsylvania. He was raised by his mother and stepfather, Jefferson (“Jeff”), with a home on Kenneth Road. </p>
+      <div class="flex">
+        <%= image_tag("placeholders/icons/message.svg", alt: "message", class: "w-8 mr-6") %>
+        <%= image_tag("placeholders/icons/share.svg", alt: "share", class: "w-8 mr-6") %>
+        <%= image_tag("placeholders/icons/star.svg", alt: "star", class: "w-8 mr-6") %>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- end about -->

@@ -1,0 +1,13 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  flex-shrink: 0;
+  /* Prevent Chrome, Opera, and Safari from letting these items shrink to smaller than their content's default minimum size. */
+  padding: 5px;
+  /* Set the fixed height of the footer here */
+  height: 20px;
+  line-height: 20px; /* Vertically center the text there */
+}
