@@ -552,7 +552,7 @@ after_bundle do
   # Commit everything to git
   git :init
   git add: "."
-  #git commit: %Q{ -m 'Initial commit' }
+  git commit: %Q{ -m "Initial commit" }
 
   say
   say "#{app_name} app successfully created! 👍", :blue
@@ -562,9 +562,9 @@ after_bundle do
   say "To get started with your new app by typing:", :green
   say "$ cd #{app_name} - To switch to your new app's directory."
   say
-  say "Then initalize your app by using:"
+  say "Then initialize your app by using:"
   say "$ rails server", :green
   say
   say "After that, head to your browser and type:"
-  say "127.0.0.1:3000 or locahost:3000", :green
+  say "127.0.0.1:3000 or localhost:3000", :green
 end
