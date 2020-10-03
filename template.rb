@@ -40,7 +40,6 @@ def rails_6?
 end
 
 def add_gems
-  gem 'sassc'
   # ADMIN
   gem 'rails_admin', '~> 2.0'
   gem 'rails_admin_rollincode', '~> 1.3'
@@ -70,6 +69,7 @@ def add_gems
   gem 'sassc-rails', '~> 2.1', '>= 2.1.2'
   gem 'pagy', '~> 3.7', '>= 3.7.1'
   gem 'cookies_eu', '~> 1.7', '>= 1.7.6'
+  gem 'uglifier', '>= 1.3.0'
   ### Delivering static images through a CDN
   gem 'rack-cors', '~> 1.0', '>= 1.0.3'
   gem 'meta-tags'
@@ -80,9 +80,11 @@ def add_gems
   gem 'rails-i18n'
 
   gem_group :development, :test do
+    gem 'dotenv-rails'
+    gem 'letter_opener_web'
+    gem "better_errors"
     gem 'pry-byebug'
     gem 'pry-rails'
-    #gem 'letter_opener_web'
   end
 
   if rails_5?
@@ -177,7 +179,8 @@ def add_users
   end
 
   # Add Devise masqueradable to users
-  inject_into_file("app/models/user.rb", "omniauthable, :masqueradable, :", after: "devise :")
+  inject_into_file("app/models/user.rb", "omniauthable, :masqueradable, :confirmable, 
+          :lockable, :timeoutable, :", after: "devise :")
   inject_into_file("app/models/user.rb", ", omniauth_providers: [:linkedin, :twitter, :github, :google_oauth2]", after: ":validatable")
 
   inject_into_file 'app/models/user.rb', before: 'end' do
@@ -221,6 +224,49 @@ def add_users
           hash = Digest::MD5.hexdigest(email)
           'http://www.gravatar.com/avatar/#{hash}'
         end\n"
+  end
+
+  inject_into_file 'config/initializers/devise.rb', after: '# config.authentication_keys = [:email]' do
+    "\n config.authentication_keys = [:email]\n"
+  end
+
+  inject_into_file 'config/initializers/devise.rb', after: '##config.clean_up_csrf_token_on_authentication = true' do
+    "\n config.clean_up_csrf_token_on_authentication = true\n"
+  end
+
+  inject_into_file 'config/initializers/devise.rb', after: '# config.send_email_changed_notification = false' do
+    "\n config.send_email_changed_notification = true\n"
+  end
+  inject_into_file 'config/initializers/devise.rb', after: '# config.send_password_change_notification = false' do
+    "\n config.send_password_change_notification = true\n"
+  end
+
+  # Configuration for :invitable
+  inject_into_file 'config/initializers/devise.rb', after: '# config.invite_for = 2.weeks' do
+    "\n config.invite_for = 2.weeks\n"
+  end
+  inject_into_file 'config/initializers/devise.rb', after: '# config.invitation_limit = 5' do
+    "\n config.invitation_limit = 5\n"
+  end
+  inject_into_file 'config/initializers/devise.rb', after: '# config.invite_key = { email: /\A[^@]+@[^@]+\z/ }' do
+    "\n config.invite_key = { email: /\A[^@]+@[^@]+\z/ }\n"
+  end
+  inject_into_file 'config/initializers/devise.rb', after: '# config.validate_on_invite = true' do
+    "\n config.validate_on_invite = true\n"
+  end
+  inject_into_file 'config/initializers/devise.rb', after: '# config.allow_insecure_sign_in_after_accept = false' do
+    "\n config.allow_insecure_sign_in_after_accept = true\n"
+  end
+
+  # Configuration for :confirmable
+  inject_into_file 'config/initializers/devise.rb', after: '# config.allow_unconfirmed_access_for = 2.days' do
+    "\n config.allow_unconfirmed_access_for = 2.days\n"
+  end
+  inject_into_file 'config/initializers/devise.rb', after: '# config.confirm_within = 3.days' do
+    "\n config.confirm_within = 3.days\n"
+  end
+  inject_into_file 'config/initializers/devise.rb', after: '# config.confirmation_keys = [:email]' do
+    "\n config.confirmation_keys = [:email]\n"
   end
 
   puts "modifying environment configuration files for Devise..."
@@ -369,21 +415,6 @@ def remove_app_css
   remove_file "app/assets/stylesheets/application.css"
 end
 
-def add_sidekiq
-  environment "config.active_job.queue_adapter = :sidekiq"
-
-  insert_into_file "config/routes.rb",
-    "require 'sidekiq/web'\n\n",
-    before: "Rails.application.routes.draw do"
-
-  content = <<-RUBY
-    authenticate :user, lambda { |u| u.admin? } do
-      mount Sidekiq::Web => '/sidekiq'
-    end
-  RUBY
-  insert_into_file "config/routes.rb", "#{content}\n\n", after: "Rails.application.routes.draw do\n"
-end
-
 def add_i18n_routes
   content = <<-RUBY
     ## Uncomment to use letter_opener
@@ -399,7 +430,8 @@ def add_i18n_routes
       get '/auth/:provider/callback', to: 'sessions#create'
 
       # rails_admin mount should be here!!!
-      mount ActionCable.server => '/cable' # Action cable for channels
+      # Action cable for channels
+      mount ActionCable.server => '/cable'
       #mount PdfjsViewer::Rails::Engine => "/pdfjs", as: 'pdfjs'
 
       ### To use errors handling links, please uncomment
@@ -437,6 +469,21 @@ def add_multiple_authentication
       before: "  # ==> Warden configuration"
 end
 
+def add_sidekiq
+  environment "config.active_job.queue_adapter = :sidekiq"
+
+  insert_into_file "config/routes.rb",
+    "require 'sidekiq/web'\n\n",
+    before: "Rails.application.routes.draw do"
+
+  content = <<-RUBY
+    authenticate :user, lambda { |u| u.admin? } do
+      mount Sidekiq::Web => '/sidekiq'
+    end
+  RUBY
+  insert_into_file "config/routes.rb", "#{content}\n\n", after: "mount ActionCable.server => '/cable'\n"
+end
+
 # Rails_admin theme
 insert_into_file "config/application.rb", before: "Bundler.require(*Rails.groups)" do
   <<-RUBY
@@ -462,7 +509,6 @@ end
 def add_cookies_eu
   run "bundle exec rails g cookies_eu:install"
 end
-
 
 def add_errors
   # Error handling links
@@ -494,10 +540,16 @@ end
 def add_friendly_id
   generate "friendly_id"
   generate "migration AddSlugToUsers slug:uniq"
+  generate "migration AddSlugToPosts slug:string:uniq"
 end
 
 def add_demo_post
   rails_command 'g scaffold post title:string body:text --no-scaffold-stylesheet'
+
+  inject_into_file 'app/models/post.rb', after: 'ApplicationRecord' do
+    "\n extend FriendlyId\n"
+    "friendly_id :title, use: :slugged\n"
+  end
 end
 
 def stop_spring
@@ -543,10 +595,9 @@ after_bundle do
 
   # Migrate
   rails_command "db:create"
-  rails_command "db:migrate"
+  #rails_command "db:migrate"
 
   # Migrations must be done before this
-
   add_rails_admin
 
   # Commit everything to git
@@ -557,10 +608,14 @@ after_bundle do
   say
   say "#{app_name} app successfully created! 👍", :blue
   say
-  say "Please add `first_name last_name` code in README.md file - On `def uniqueslug` in `app/models/user.rb`."
+  say "** Please add `first_name last_name` code in README.md file - On `def uniqueslug` in `app/models/user.rb`."
   say
   say "To get started with your new app by typing:", :green
   say "$ cd #{app_name} - To switch to your new app's directory."
+  say
+  say "** Before running rails db:migrate open db/migrate/#_devise_create_users.rb and"
+  say "Uncomment line under: ## Trackable, ## Confirmable & ## Lockable", :green
+  say "$ rails db:migrate", :green
   say
   say "Then initialize your app by using:"
   say "$ rails server", :green

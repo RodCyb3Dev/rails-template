@@ -1,8 +1,5 @@
 console.log("custom js file loaded")
 
-// ContentContainer Scripts in body tag
-$(".contentContainer").css("min-height", $(window).height());
-
 // Alert Timer Script
 window.setTimeout(function () {
   $(".notify-timer").fadeTo(500, 0).slideUp(500, function () {
@@ -12,17 +9,6 @@ window.setTimeout(function () {
 
 // Request Header X-CSRF-Token
 $(function () {
-  $('#loader').hide()
-  $(document).ajaxStart(function () {
-    $('#loader').show();
-  })
-  $(document).ajaxError(function () {
-    alert("Something went wrong...")
-    $('#loader').hide();
-  })
-  $(document).ajaxStop(function () {
-    $('#loader').hide();
-  });
   $.ajaxSetup({
     beforeSend: function (xhr) {
       xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))
