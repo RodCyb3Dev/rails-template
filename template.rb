@@ -10,16 +10,16 @@ Instructions: $ rails new myapp -d <postgresql, mysql, sqlite> -m template.rb
 def add_template_repository_to_source_path
   if __FILE__ =~ %r{\Ahttps?://}
     require "tmpdir"
-    source_paths.unshift(tempdir = Dir.mktmpdir("kodeflash-rails-tailwindcss-template-"))
+    source_paths.unshift(tempdir = Dir.mktmpdir("kodeflash-Rails-template-"))
     at_exit { FileUtils.remove_entry(tempdir) }
     git clone: [
       "--quiet",
-      "https://github.com/rodcode47/kodeflash-rails-tailwindcss-template.git",
+      "https://raw.githubusercontent.com/Rodcode47/kodeflash-Rails-template/master/template.rb",
       tempdir
     ].map(&:shellescape).join(" ")
 
 
-    if (branch = __FILE__[%r{kodeflash-rails-tailwindcss-template/(.+)/template.rb}, 1])
+    if (branch = __FILE__[%r{kodeflash-Rails-template/(.+)/template.rb}, 1])
       Dir.chdir(tempdir) { git checkout: branch }
     end
   else
