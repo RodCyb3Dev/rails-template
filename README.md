@@ -59,17 +59,27 @@ rails new app-name -d postgresql -m template.rb
 ```ruby
 # For friendly_id use
 def uniqueslug
-  "#{first_name}-#{last_name}" # Add this line!!!
+  "#{first_name}-#{last_name}" # Add this line!!! in app/models/user.rb
 end
 ```
 
-- cd #{app_name} - into your new app's directory."
+- cd #{app_name} - into your new app's directory.
 - Then initialize your app by using: `$ rails server`
 - After that, head to your browser and type: `127.0.0.1:3000 or localhost:3000`
 
 ❓ If the app fails due to **Segmentation fault**? try running `$ rails server` again Or Try adding `DISABLE_SPRING=1` before `rails new`. Spring will get confused if you create an app with the same name twice.
 
 #### Once installed what do I get?
+
+- Webpack support + Tailwind CSS configured in the `app/javascript` directory.
+- Devise with a new `username`, `name`, `invitation`, `omniauth` field already migrated in. Enhanced views using Tailwind CSS.
+- Support for Friendly IDs thanks to the handy [friendly_id](https://github.com/norman/friendly_id) gem. Note that you'll still need to do some work inside your models for this to work. This template installs the gem and runs the associated generator.
+
+- Rails 6+ comes with webpacker by default and some cool features like `active_storage`, `action_text` which we added for you to use `has_one_attached` or `has_rich_text`. Note that you'll still need to do some work inside your models for this to work. This template installs the gem and runs the associated generator.
+- Optional Foreman support thanks to a `Profile`. Once you scaffold the template, run `foreman start` to initialize and head to `localhost:5000` to get `rails server`, `sidekiq` and `webpack-dev-server` running all in one terminal instance. Note: Webpack will still compile down with just `rails server` if you don't want to use Foreman. Foreman needs to be installed as a global gem on your system for this to work. i.e. `gem install foreman`
+- A custom scaffold view template when generating theme resources (Work in progress).
+
+* Git initialization out of the box
 
 ###### Included gems
 
@@ -82,13 +92,3 @@ end
 - [meta-tags](https://github.com/kpumuk/meta-tags)
 - [lazyload-rails](https://github.com/jassa/lazyload-rails)
 - - more...
-
-- Webpack support + Tailwind CSS configured in the `app/javascript` directory.
-- Devise with a new `username`, `name`, `invitation`, `omniauth` field already migrated in. Enhanced views using Tailwind CSS.
-- Support for Friendly IDs thanks to the handy [friendly_id](https://github.com/norman/friendly_id) gem. Note that you'll still need to do some work inside your models for this to work. This template installs the gem and runs the associated generator.
-
-- Rails 6+ comes with webpacker by default and some cool features like `active_storage`, `action_text` which we added for you to use `has_one_attached` or `has_rich_text`. Note that you'll still need to do some work inside your models for this to work. This template installs the gem and runs the associated generator.
-- Optional Foreman support thanks to a `Profile`. Once you scaffold the template, run `foreman start` to initialize and head to `localhost:5000` to get `rails server`, `sidekiq` and `webpack-dev-server` running all in one terminal instance. Note: Webpack will still compile down with just `rails server` if you don't want to use Foreman. Foreman needs to be installed as a global gem on your system for this to work. i.e. `gem install foreman`
-- A custom scaffold view template when generating theme resources (Work in progress).
-
-* Git initialization out of the box
