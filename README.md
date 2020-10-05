@@ -91,4 +91,3 @@ end
 - [rails_i18n](https://github.com/svenfuchs/rails-i18n)
 - [meta-tags](https://github.com/kpumuk/meta-tags)
 - [lazyload-rails](https://github.com/jassa/lazyload-rails)
-- - more...
