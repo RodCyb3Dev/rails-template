@@ -540,11 +540,11 @@ end
 def add_friendly_id
   generate "friendly_id"
   generate "migration AddSlugToUsers slug:uniq"
+  generate "migration AddSlugToPosts slug:string:uniq"
 end
 
 def add_demo_post
   rails_command 'g scaffold post title:string body:text --no-scaffold-stylesheet'
-  generate "migration AddSlugToPosts slug:string:uniq"
 
   inject_into_file 'app/models/post.rb', after: 'ApplicationRecord' do
     "\n extend FriendlyId\n"
