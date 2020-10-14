@@ -38,36 +38,82 @@ You'll need the following installed to run the template successfully:
 
 #### Creating a new app
 
+1. Create your application from the template.
+
 ```bash
 rails new app-name -d postgresql -m https://raw.githubusercontent.com/Rodcode47/kodeflash-Rails-template/master/template.rb
 ```
 
-❓ If for some reason the URL above fails, we recommend you have downloaded this repo, you can reference template.rb locally by:
+⚠ If for some reason the URL above fails, we recommend you have downloaded this repo, you can reference template.rb locally by:
 
 - unzip the downloaded file (kodeflash-Rails-template).
 - cd kodeflash-Rails-template
-- Then initialize your New App by using:
+
+2. Initialize your New App by using:
 
 ```bash
-rails new app-name -d postgresql -m template.rb
+rails new feeniks -d postgresql -m template.rb
 ```
 
-#### ❓ Once your app is created what do next?
+3. cd #{app_name} - into your new app's directory.
 
-- Add in to file `'app/models/user.rb'` inside `def uniqueslug`
+#### ⚠ Attention: Your must make some changes in your new app?
+
+- Add in to file `'app/models/user.rb'`
 
 ```ruby
 # For friendly_id use
 def uniqueslug
-  "#{first_name}-#{last_name}" # Add this line!!! in app/models/user.rb
+  "#{first_name}-#{last_name}" # Add this line!!!
 end
 ```
 
-- cd #{app_name} - into your new app's directory.
+#### ⚠ Important: Before running "rails db:migrate" you must make changes by:
+
+- Uncomment in `'db/migrate/*_devise_create_users.rb'` on **## Trackable**, **## Confirmable**, and **## Lockable**.
+
+**From**
+
+```ruby
+## Trackable
+# t.integer  :sign_in_count, default: 0, null: false
+# t.datetime :current_sign_in_at
+# t.datetime :last_sign_in_at
+# t.inet     :current_sign_in_ip
+# t.inet     :last_sign_in_ip
+
+## Confirmable
+# t.string   :confirmation_token
+# t.datetime :confirmed_at
+# t.datetime :confirmation_sent_at
+# t.string   :unconfirmed_email # Only if using reconfirmable
+
+## Lockable
+# t.integer  :failed_attempts, default: 0, null: false # Only if lock strategy is :failed_attempts
+# t.string   :unlock_token # Only if unlock strategy is :email or :both
+# t.datetime :locked_at
+```
+
+**To**
+
+```ruby
+## Confirmable
+t.string   :confirmation_token
+t.datetime :confirmed_at
+t.datetime :confirmation_sent_at
+t.string   :unconfirmed_email # Only if using reconfirmable
+
+## Lockable
+t.integer  :failed_attempts, default: 0, null: false # Only if lock strategy is :failed_attempts
+t.string   :unlock_token # Only if unlock strategy is :email or :both
+t.datetime :locked_at
+```
+
+- Now with all the changes made as mentioned above run `rails db:migrate`
 - Then initialize your app by using: `$ rails server`
 - After that, head to your browser and type: `127.0.0.1:3000 or localhost:3000`
 
-❓ If the app fails due to **Segmentation fault**? try running `$ rails server` again Or Try adding `DISABLE_SPRING=1` before `rails new`. Spring will get confused if you create an app with the same name twice.
+⚠ If the app fails due to **Segmentation fault**? try running `$ rails server` again and if this persist Try adding `DISABLE_SPRING=1` before `rails new`. Spring will get confused if you create an app with the same name twice.
 
 #### Once installed what do I get?
 

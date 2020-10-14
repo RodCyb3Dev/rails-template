@@ -1,0 +1,18 @@
+<p>Sender: <%= @name %></p>
+<p>Email: <%= @email %></p>
+<p>Time: <%= @sent_on %></p>
+<p>Sent from: <a href="<%= @url %>"><%= Rails.configuration.application_name %></a></p>
+<h4>Subject: <%= @subject %></h4>
+<hr>
+<div class="app-card-container contact-form">
+  <div class="card mt-5" id="contact">
+    <div class="ui positive message">
+      <div class="header">
+        <h3><%= @greeting %></h3>
+      </div>
+      <p><%= @body %></p>
+      <p>Sincerely,</p>
+      <p><%= @name %></p>
+    </div>
+  </div>
+</div>

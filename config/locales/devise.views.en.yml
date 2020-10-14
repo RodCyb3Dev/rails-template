@@ -173,9 +173,14 @@ en:
         sign_up: Sign up
       custom_auth_links:
         authHeader: "Or sign in with:"
-        gith: "GitHub"
-        googl: "Google"
-        linked: "Linkedin"
+        git: "GitHub"
+        google: "Google"
+        linked: "LinkedIn"
+      form_footer:
+        brand_name: "App Name"
+        privacy_link: "Privacy Policy"
+        terms_link: "Term of Service"
+        dev_by: "Developed by"
       minimum_password_length:
         one: "(%{count} character minimum)"
         other: "(%{count} characters minimum)"

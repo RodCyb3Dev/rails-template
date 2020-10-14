@@ -19,6 +19,18 @@ class ApplicationController < ActionController::Base
     { host: ENV["HOST_NAME"] || "localhost:3000" }
   end
 
+  # rescue_from 404 error
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+=begin
+  rescue_from ActiveRecord::RecordNotFound do |exception|
+    redirect_to root_path, 404, alert: I18n.t("errors.record_not_found")
+  end
+  # Or
+  rescue_from ActiveRecord::RecordNotFound do |exception|
+    redirect_to root_path, 404, alert: 'Record not found'
+  end
+=end
+
   #To redirect to the stored location after the user signs in you would override the method with:
   def after_sign_in_path_for(resource_or_scope)
     stored_location_for(resource_or_scope) || super
@@ -31,7 +43,7 @@ class ApplicationController < ActionController::Base
   # Confirms a logged-in user.
   def logged_in_user
     unless user_signed_in?
-        flash[:danger] = t('review_login_alert', :default => 'Sinulla ei ole valtuuksia suorittaa tätä toimintoa.')
+      flash[:danger] = t('review_login_alert')
     end
   end
 
@@ -39,12 +51,23 @@ class ApplicationController < ActionController::Base
     signed_in? ? current_user.admin : false
   end
 
+  def set_locale
+    begin
+      if params[:locale] != nil
+        cookies.permanent[:locale] = params[:locale]
+      end
+      I18n.locale = (user_signed_in? && current_user.try(:locale)) || cookies[:locale] || read_lang_header || "en"
+    rescue I18n::InvalidLocale
+      I18n.locale = "en"
+    end
+  end
+
   protected
 
     def configure_permitted_parameters
-      devise_parameter_sanitizer.permit(:sign_up, keys: [:username, :name])
-      devise_parameter_sanitizer.permit(:account_update, keys: [:username, :name, :avatar])
-      devise_parameter_sanitizer.permit :accept_invitation, keys: [:email]
+      devise_parameter_sanitizer.permit(:sign_up, keys: [:name])
+      devise_parameter_sanitizer.permit(:account_update, keys: [:name, :avatar])
+      devise_parameter_sanitizer.permit :accept_invitation, keys: [:name, :email]
     end
 
   private
@@ -75,12 +98,9 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    def set_locale
-      I18n.locale = params[:locale] || I18n.default_locale
-    end
-
-    def default_url_options(options = {})
-      {locale: I18n.locale}
+    # rescue_from 404 error
+    def record_not_found
+      render html: "Record <strong>not found</strong>", status: 404
     end
 
     def read_lang_header

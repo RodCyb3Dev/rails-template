@@ -16,11 +16,19 @@ en:
   review_login_alert: "Please log in to perform this action."
   not_authorized_alert: "You are not authorized to perform this action."
 
+  #controller/contacts_controller.rb
+  contact_page: "Contact"
+  contact_sent_msg: Message successfully sent, thanks!
+  contact_filled_msg: Oops! message failed, please recheck that all fields are filled
+
   #controller/home_controller.rb
   home_page: "Home"
   about_page: "About"
   privacy_link: "Privacy Policy"
   terms_link: "Terms of Service"
+
+  #controller/post_controller.rb
+  post_page: "Blogs"
 
   #cookies
   cookies_eu:
@@ -35,7 +43,56 @@ en:
     index:
       home_title: "Welcome to your new Rails app!"
       learn_more: Learn more
-
+  #About page
+  about:
+    about_file_badge_new: New
+    about_file_text: Sign in to download the file.
+    tip_preview_btn: "Preview file."
+    preview_btn: "Preview file."
+    tip_download_pdf: "How to download file"
+    download_pdf: "Download file"
+    tip_view_1: "Preview CV in English"
+    tip_view_2: "Preview CV in Finnish"
+    or_text: "or"
+    view_pdf: "Preview file."
+  #Contact Page
+  contacts:
+    new:
+      contact_intro: "Get In Touch With Us"
+      contact_detail: "Let us guide you through the world of paper"
+      contact_sub_detail: "Lovely Pam-Pam is waiting to answer all your questions and inquiries."
+      sometinhdr: "Code"
+      visit: "visitor"
+      greetings: "Howdy, Welcome"
+      name: "name"
+      msg: "message"
+      bye: "Bye"
+      formnote: "Get in Touch!"
+      contact_name: Name
+      contact_email: Email
+      contact_subject: Subject
+      contact_body: Write your message
+      contact_send: "Send Your Message"
+      contact_note: Sorry! Contact Form is only available to logged in users.
+  #Views/Posts
+  posts:
+    #index.html.erb
+    index:
+      page_title: "Your Posts"
+      post_discrip: "Beware of bugs in the below code; I have only proved it correct, not tried it."
+      previous_page: Previous
+    #show.html.erb
+    show:
+      post_home_link: "Home"
+      created_by: "Created by:"
+      post_time: "ago"
+      post_updated: "Last updated:"
+      min_read: Someone read
+      go_back: "Go Back"
+      back_link: "Back To All"
+      browse_mo: Browse More
+      post_bugdiv: "“Talk is cheap. Show me the code.”"
+      tipdemolink: "Post image"
   #Views/shared/
   shared:
     #views/shared/_Footer
@@ -52,7 +109,7 @@ en:
     #views/shared/_navbar
     navbar:
       brand_name: "App Name"
-      about_nav: "About-Us"
+      about_nav: "About"
       contact_nav: "Contact"
       contact_title: "Find out more about us."
       blog_page: "Blog"

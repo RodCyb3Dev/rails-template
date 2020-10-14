@@ -1,7 +1,15 @@
-<!--<title><%= Rails.configuration.application_name %></title>-->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <%= favicon_link_tag 'favicon-tailwind.png' %>
+
+<!-- 
+  <title>
+    <%= Rails.configuration.application_name %>
+    OR
+    <%= content_for?(:title) ? yield(:title) : Rails.configuration.application_name %>
+  </title> 
+-->
+
 <%= render partial: 'shared/meta_tag' %>
 
 <%= csrf_meta_tags %>
@@ -10,6 +18,32 @@
 <!-- Semantic-ui-flags-->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/flag.min.css" />
 
+<!-- StyleSheet -->
 <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-<%= stylesheet_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+<%= stylesheet_pack_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+
+<!-- Tailwindcss Modal -->
+<style>
+  .modal {
+    transition: opacity 0.25s ease;
+  }
+  body.modal-active {
+    overflow-x: hidden;
+    overflow-y: visible !important;
+  }
+</style>
+
+<!-- Simple Notifications Solution css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/ScrollMagic.min.js"></script>
+
+<!-- JavaScript -->
+<%= javascript_include_tag "application", 'data-turbolinks-track' => false %>
 <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+<%= javascript_include_tag "https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" %>
+
+
+<!--Random background image on refresh JS-->
+<% if user_signed_in? %>
+<%= tag :meta, name: "current-user", data: {id: current_user.id} %>
+<% end %>

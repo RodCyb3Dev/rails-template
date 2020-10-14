@@ -1,62 +1,64 @@
-<div class="w-full max-w-xs">
-    <h1 class="font-hairline mb-6 text-center">
-        <%= t('.title', :resource => resource_class.model_name.human , :default => "Edit #{resource_name.to_s.humanize}") %>
-    </h1>
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full bg-white mb-4 px-8 pt-6 pb-8 rounded shadow-md">
+    <h2 class="mb-8 text-3xl text-center">
+      <%= t('.title', :resource => resource_class.model_name.human , :default => "Edit #{resource_name.to_s.humanize}") %>
+    </h2>
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+      <%#= render "devise/shared/error_messages", resource: resource %>
+      <%= devise_error_messages! %>
 
-    <%= form_for(resource,
-                 as: resource_name,
-                 url: registration_path(resource_name),
-                 html: {
-                         method: :put,
-                         class: "bg-white mb-4 px-8 pt-6 pb-8 rounded shadow-md"
-                 }
-        ) do |f| %>
-
-        <%#= render "devise/shared/error_messages", resource: resource %>
-        <%= devise_error_messages! %>
-
-        <div class="mb-4">
-            <%= f.label :email %><br/>
-            <%= f.email_field :email,
-                              autofocus: true,
-                              autocomplete: "email" %>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-4">
+            <%= image_tag user_avatar(resource, 100), class: "h-16 w-16 rounded-full mx-auto" %>
+          </div>
+          <div class="col-sm-8">
+            <%= f.file_field :avatar, class: "p-6" %>
+          </div>
         </div>
+      </div>
 
-        <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-            <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
+      <span class="flex bg-grey-lighter items-center">
+        <%= f.text_field :name, autofocus: true, class: 'hover:shadow-lg block border border-grey-light w-full p-2 rounded mb-4', placeholder: t('.full_name', :default => 'Koko nimi') %>
+      </span>
+
+      <%= f.email_field :email, autofocus: false, autocomplete: "email", class: 'hover:shadow-lg block border border-grey-light w-full p-2 rounded mb-4', placeholder: t('.email', :default => 'Sähköposti') %>
+
+      <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+        <div><%= t('.currently_waiting_confirmation_for_email', email: resource.unconfirmed_email) %></div>
+      <% end %>
+
+      <div class="field">
+        <%= f.label :password %> <i>(<%= t('.leave_blank_if_you_don_t_want_to_change_it', :default => "leave blank if you don't want to change it") %>)</i><br />
+        <%= f.password_field :password, autocomplete: "new-password", class: 'hover:shadow-lg block border border-grey-light w-full p-2 rounded mb-4', placeholder: t('.password', :default => 'Salasana') %>
+        <% if @minimum_password_length %>
+          <br />
+          <em><%= t('devise.shared.minimum_password_length', count: @minimum_password_length) %></em>
         <% end %>
+      </div>
 
-        <div class="mb-4">
-            <%= f.label :password %> <i>(leave blank if you don't want to change it)</i><br/>
-            <%= f.password_field :password, autocomplete: "new-password" %>
-            <% if @minimum_password_length %>
-                <br/>
-                <em><%= @minimum_password_length %> characters minimum</em>
-            <% end %>
-        </div>
+      <%= f.password_field :password_confirmation, autocomplete: "new-password", type: "password", class: 'hover:shadow-lg block border border-grey-light w-full p-2 rounded mb-4', placeholder: t('.confirm_password', :default => 'Vahvista salasana') %>
 
-        <div class="mb-4">
-            <%= f.label :password_confirmation %><br/>
-            <%= f.password_field :password_confirmation,
-                                 autocomplete: "new-password"
-            %>
-        </div>
+      <div class="field">
+        <%= f.label :current_password %> <i>(<%= t('.we_need_your_current_password_to_confirm_your_changes', :default => 'we need your current password to confirm your changes') %>)</i><br />
+        <%= f.password_field :current_password, autocomplete: "current-password", class: 'hover:shadow-lg block border border-grey-light w-full p-2 rounded mb-4', placeholder: t('.current_password', :default => 'Nykyinen salasana') %>
+      </div>
 
-        <div class="mb-4">
-            <%= f.label :current_password %> <i>(we need your current password to confirm your changes)</i><br/>
-            <%= f.password_field :current_password,
-                                 autocomplete: "current-password"
-            %>
-        </div>
-
-        <div class="actions">
-            <%= f.submit "Update" %>
-        </div>
+      <div class="actions">
+        <%= f.submit t('.update', :default => "Update"), class: "buttons w-full text-center rounded-full py-1 bg-green-400 text-white hover:bg-green-600 hover:shadow-lg focus:outline-none my-1" %>
+      </div>
     <% end %>
-
-    <h1 class="font-hairline mb-6 text-center">Cancel My Account</h1>
-
-    <p>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete %></p>
-
-    <%= link_to "Back", :back %>
+    <div class="text-singup text-sm text-grey-dark mt-4">
+      <h2 class="font-hairline font-medium">Cancel My Account</h2>
+      <p>
+        <%= t('.unhappy', :default => 'Onneton?') %>? 
+        <%= link_to t('.cancel_my_account', :default => "Cancel My Account"), registration_path(resource_name), :data => { :confirm => t('.are_you_sure', :default => "Are you sure?") }, :method => :delete, class: "font-medium text-blue-600 hover:text-red-500 transition ease-in-out duration-150" %>.
+      </p>
+    </div>
+    <hr>
+    <div class="text-sm text-grey-dark mt-2">
+      <%= link_to t('devise.shared.links.back', :default => "<< Takaisin"), :back, class: "font-medium text-indigo-600 hover:text-indigo-500 transition ease-in-out duration-150" %>
+    </div>
+  </div>
+  <br />
 </div>

@@ -1,4 +1,4 @@
-<div class="w-full max-w-xs">
+<div class="w-full max-w-md">
     <h1 class="font-hairline mb-6 text-center"><%= t('.forgot_your_password', :default => 'Forgot your password?') %></h1>
 
     <%= form_for(resource,
@@ -25,6 +25,9 @@
         </div>
 
         <%= render "devise/shared/links" %>
+        
+        <hr class="border-b border-gray-400">
+        <%= link_to "Back", :back, class: "font-medium text-indigo-600 hover:text-indigo-500 transition ease-in-out duration-150" %>
     <% end %>
 
     <%= render partial: "devise/shared/form_footer", locals: {start_year: '2018'} %>

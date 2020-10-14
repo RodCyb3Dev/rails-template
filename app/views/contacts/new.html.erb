@@ -1,0 +1,34 @@
+<% content_for(:html_title) { t('contact_page') } %>
+
+<section class="py-12 px-4"> 
+  <h2 class="text-3xl mb-12 text-center font-heading"><strong><u><%=t ".contact_intro" %></u></strong></h2>
+  <div class="flex flex-wrap -mx-6">
+    <div class="w-full lg:w-1/2 px-6 mb-8 lg:mb-0">
+      <h3 class="text-2xl mb-2 font-heading">Let us guide you through the world of paper</h3>
+      <p class="mb-8">Lovely Pam-Pam is waiting to answer all your questions and inquiries.</p>
+      <ul>
+        <li class="mb-2">
+          <%= image_tag("placeholders/icons/home.svg", alt: "Home", class: "inline-block w-8 h-8 pr-2") %>
+          <span>Puolakantie 81, 00410 Helsinki.</span>
+        </li>
+        <li class="mb-2">
+          <%= image_tag("placeholders/icons/mobile.svg", alt: "Edit Entry", class: "inline-block w-8 h-8 pr-2") %>
+          <%=t ".phone"%>: <%= number_to_phone "055-111-2555" %>
+        </li>
+        <li class="mb-2">
+          <%= image_tag("placeholders/icons/message.svg", alt: "Edit Entry", class: "inline-block w-8 h-8 pr-2") %>
+          <%=t ".email"%>: <a href="mailto:ryour.email@gmail.com?subject=PortfolioContact" title="click to send">your.email@gmail.com</a>
+        </li>
+      </ul>
+    </div>
+    <div class="w-full lg:w-1/2 px-6">
+      <% if user_signed_in? %>
+        <%= render :partial => 'contacts/form' %>
+      <% else %>
+        <h4 class="font-bold break-normal text-center text-2xl md:text-2xl mx-4">
+          <%= link_to_if(@current_user.nil?, t('.contact_note'), new_user_session_path, class: 'inline-block w-full py-4 px-8 leading-none text-white bg-indigo-500 hover:bg-indigo-600 rounded shadow') %>
+        </h4>
+      <% end %>
+    </div>
+  </div>
+</section>

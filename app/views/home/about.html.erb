@@ -1,5 +1,6 @@
 <% content_for(:html_title) { t('about_page') } %>
 
+<!-- If the User is not signed in we show this -->
 <% if user_signed_in? %>
 <!-- Nothing to display -->
 <% else %>
@@ -19,57 +20,65 @@
     </svg>
   </div>
 <% end %>
+
 <!-- start about -->
 <section class="py-12 px-4">
-  <div class="mt-0 mb-3">
-    <div class="ui right floated small buttons px-3">
-      <% if current_user %>
-        <% if logged_in?(:root_admin) %>
-          <!-- Download Button -->
-          <div class="origin-top-right absolute right-0 mt-2 -mr-1 w-48 rounded-md shadow-lg" aria-labelledby="mobile-menu" role="menu">
-            <div class="py-1 rounded-md bg-white shadow-xs">
-              <a href="/somefile_1.pdf" class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out" role="menuitem">
-                <i class="download icon"></i> Download PDF <i class="fi flag"></i>
-              </a>
-              <a href="somefile_2.pdf" class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out" role="menuitem">
-                <i class="download icon"></i> Download PDF <i class="gb uk flag"></i>
-              </a>
-            </div>
-            <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
-              <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/>
-              </svg>
-              <span>Download</span>
-              <i class="fi flag"></i>
-            </button>
-          </div>
-          <!-- / Download Button -->
-        <% end %>
-        <!-- Preview Button -->
-        <div data-tooltip="<%=t ".tipwebcv"%>" data-position="top left">
-          <%= link_to pdfjs.reduced_path(file: "/somefile_1.pdf"), target: '_new', class: 'font-medium text-indigo-600 hover:text-indigo-500 transition duration-150 ease-in-out' do %>
-            <i class="paper plane outline icon"></i> <i class="gb uk flag"></i> View PDF
-          <% end %>
-        </div>
-        <div class="or" data-text="<%=t ".ortxt"%>"></div>
-
-        <div class="origin-top-right absolute right-0 mt-2 -mr-1 w-48 rounded-md shadow-lg" aria-labelledby="mobile-menu" role="menu">
-          <%= link_to pdfjs.reduced_path(file: "/somefile_2.pdf"), target: '_new', class: 'font-medium text-indigo-600 hover:text-indigo-500 transition duration-150 ease-in-out' do %>
-            <i class="paper plane outline icon"></i> <i class="fi flag"></i> View PDF
-          <% end %>
-        </div>
-        <!-- / Preview Button -->
-      <% end %>
-    </div>
-  </div>
-
   <div class="flex flex-wrap -mx-4 mb-8">
     <div class="lg:w-1/2 px-4 mb-4 lg:mb-0">
       <%= image_tag("placeholders/pictures/male_avatar.svg", alt: "Avator", class: "rounded shadow-md") %>
     </div>
     <div class="lg:w-1/2 px-4">
-      <h2 class="text-4xl font-heading font-semibold">Michael Scott</h2>
-      <span class="text-xl">Regional Manager</span>
+      <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9 sm:truncate">
+          Michael Scott
+        </h2>
+        <span class="text-xl">Back End Developer</span>
+
+        <!-- Preview & Download Button -->
+        <% if current_user %>
+          <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap">
+            <!-- Show by language selected -->
+            <% if I18n.locale == :en %>
+              <!-- English language -->
+              <%= link_to locale: "en" do %>
+                <!-- View File -->
+                <div class="mt-2 flex items-center text-sm leading-5 text-gray-500 sm:mr-6">
+                  <i class="flex-shrink-0 text-gray-400 fas fa-file-pdf" id="clicks"></i>
+                  <%= link_to pdfjs.full_path(file: "/somefile_1.pdf".html_safe).to_s, class: 'font-medium text-indigo-500 hover:text-indigo-600 transition duration-150 ease-in-out', target: "_new" do %>
+                    &nbsp; <%= t'.pdf_buk_btn', :default => "View PDF" %> &nbsp;<i class="gb uk flag"></i>
+                  <% end %>
+                </div>
+
+                <!-- Download File -->
+                <div class="mt-2 flex items-center text-sm leading-5 text-gray-500">
+                  <%= link_to '/somefile_2.pdf', class: "block px-4 py-2 mb-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out", :target => '_blank' do %>
+                    <i class="flex-shrink-0 text-gray-400 fas fa-download" id="clicks"></i>&nbsp; <%= t'.download_file', :default => "Download PDF" %>&nbsp; <i class="gb uk flag"></i>
+                  <% end %>
+                </div>
+              <% end %>
+            <% else %>
+              <!-- Finnish language -->
+              <%= link_to locale: "fi" do %>
+                <!-- View File -->
+                <div class="mt-2 flex items-center text-sm leading-5 text-gray-500 sm:mr-6">
+                  <i class="flex-shrink-0 text-gray-400 fas fa-file-pdf" id="clicks"></i>
+                  <%= link_to pdfjs.full_path(file: "/somefile_2.pdf".html_safe).to_s, class: 'font-medium text-indigo-500 hover:text-indigo-600 transition duration-150 ease-in-out', target: "_new" do %>
+                    &nbsp; <%= t'.pdf_buk_btn', :default => "View PDF" %> &nbsp;<i class="fi flag"></i>
+                  <% end %>
+                </div>
+                <!-- Download File -->
+                <div class="mt-2 flex items-center text-sm leading-5 text-gray-500 sm:mr-6">
+                  <%= link_to '/somefile_2.pdf', class: "block px-4 py-2 mb-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out", :target => '_blank' do %>
+                    <i class="flex-shrink-0 text-gray-400 fas fa-download" id="clicks"></i>&nbsp; <%= t'.download_file', :default => "Download PDF" %>&nbsp;<i class="fi flag"></i>
+                  <% end %>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+        <!-- / Preview & Download Button -->
+      </div>
+      
       <p class="my-5">Former branch manager of the Scranton branch of Dunder Mifflin Paper Company, The Michael Scott Paper Company, and later Dunder Mifflin Sabre. Michael enjoys writing song parodies. </p>
       <p class="my-5">Michael was born on March 15, 1962, at 11:23 AM, in Scranton, Pennsylvania. He was raised by his mother and stepfather, Jefferson (“Jeff”), with a home on Kenneth Road. </p>
       <div class="flex">

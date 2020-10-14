@@ -68,7 +68,7 @@ fi:
       confirmation_instructions:
         action: Vahvista käyttäjätunnukseni
         greeting: Tervetuloa, %{recipient}!
-        instruction: 'Vahvista sähköpostisi painamalla alla olevaa linkkiä:'
+        instruction: "Vahvista sähköpostisi painamalla alla olevaa linkkiä:"
         subject: Vahvistusohjeet
       invitation_instructions:
         subject: "Kutsuohjeet"
@@ -79,7 +79,7 @@ fi:
         ignore: "Jos et halua hyväksyä kutsua, ohita tämä sähköpostiosoite. Tiliäsi ei luoda, ennen kuin olet käyttänyt yllä olevaa linkkiä ja asettanut salasanasi."
       email_changed:
         greeting: Hei %{recipient}!
-        message:  Otamme sinuun yhteyttä ilmoittaaksemme sinulle, että sähköpostiosoitteesi on muutettu muotoon% {email}.
+        message: Otamme sinuun yhteyttä ilmoittaaksemme sinulle, että sähköpostiosoitteesi on muutettu muotoon% {email}.
         subject: Sähköposti muutettu
       password_change:
         greeting: Hei %{recipient}!
@@ -95,7 +95,7 @@ fi:
       unlock_instructions:
         action: Poista käyttäjätunnukseni lukitus
         greeting: Hei, %{recipient}!
-        instruction: 'Paina alla olevaa linkkiä poistaaksesi lukituksen:'
+        instruction: "Paina alla olevaa linkkiä poistaaksesi lukituksen:"
         message: Käyttäjätunnuksesi on lukittu johtuen liian monesta epäonnistuneesta kirjautumisyrityksestä.
         subject: Ohjeet tunnuksen lukituksen poistoon
     omniauth_callbacks:
@@ -125,7 +125,7 @@ fi:
         current_password: Nykyinen salasana
         are_you_sure: Oletko varma?
         cancel_my_account: Poista käyttäjätunnukseni
-        currently_waiting_confirmation_for_email: 'Odotetaan vahvistusta sähköpostille: %{email}'
+        currently_waiting_confirmation_for_email: "Odotetaan vahvistusta sähköpostille: %{email}"
         leave_blank_if_you_don_t_want_to_change_it: jätä tämä tyhjäksi, mikäli et halua vaihtaa
         title: Muokkaa %{resource}
         unhappy: Onneton?
@@ -176,9 +176,14 @@ fi:
         sign_up: Rekisteröidy
       custom_auth_links:
         authHeader: "Or Kirjaudu sisään:"
-        gith: "GitHub"
-        googl: "Google"
-        linked: "Linkedin"
+        git: "GitHub"
+        google: "Google"
+        linked: "LinkedIn"
+      form_footer:
+        brand_name: "App Nimi"
+        privacy_link: "Yksityisyys"
+        terms_link: "Ehdot"
+        dev_by: "Kehittäjä"
       minimum_password_length:
         one: "(%{count} merkki vähintään)"
         other: "(vähintään %{count} merkkiä)"
@@ -196,7 +201,7 @@ fi:
       not_found: ei löytynyt
       not_locked: ei ollut lukittu
       not_saved:
-        one: '1 virhe esti %{resource} tallentamisen:'
+        one: "1 virhe esti %{resource} tallentamisen:"
         other: "%{count} virhettä esti %{resource} tallentamisen:"
   time:
     formats:

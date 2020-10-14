@@ -29,8 +29,8 @@
   <div class="navbar-menu hidden lg:flex lg:flex-grow lg:items-center w-full lg:w-auto">
     <div class="lg:mr-auto">
       <a class="block lg:inline-block mt-4 lg:mt-0 mr-10 text-blue-900 hover:text-blue-700" href="/about"><%= t'.about_nav' %></a>
-      <a class="block lg:inline-block mt-4 lg:mt-0 mr-10 text-blue-900 hover:text-blue-700" href="#"><%= t'.contact_nav' %></a>
-      <a class="block lg:inline-block mt-4 lg:mt-0 text-blue-900 hover:text-blue-700" href="#"><%= t'.blog_page' %></a>
+      <a class="modal-open block lg:inline-block mt-4 lg:mt-0 mr-10 text-blue-900 hover:text-blue-700" href="/contact"><%= t'.contact_nav' %></a>
+      <a class="block lg:inline-block mt-4 lg:mt-0 text-blue-900 hover:text-blue-700" href="/posts"><%= t'.blog_page' %></a>
     </div>
     <div class="relative inline-block text-left">
       <div class="rounded-md bg-white shadow-xs" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
@@ -56,44 +56,59 @@
     </div>
     <div>
       <% if user_signed_in? %>
-        <div class="navbar-item has-dropdown is-hoverable">
-          <%= link_to "#", id: "navbar-dropdown", class: "navbar-link dropdown-toggle", data: { target: "nav-account-dropdown", toggle: "dropdown" }, aria: { haspopup: true, expanded: false } do %>
-            <%= t'.user_account', :default => 'Account' %>
-            &nbsp;&nbsp;<%= image_tag gravatar_image_url(current_user.email, size: 40), height: 20, width: 20, class: "rounded" %>
-          <% end %>
-          <div class="navbar-dropdown is-right">
-            <%= link_to edit_user_registration_path, class:"navbar-item" do %>
-              <%= current_user.name %> 
-              <% if admin? %> 
-                &nbsp; <span class="tag is-warning">ADMIN</span> 
-              <% else %>
-                &nbsp; <span class="tag is-warning">Hei</span>
+        <div class="flex justify-center">
+          <!-- Dropdown -->
+          <div x-data="{ open: false }" class="relative">
+            <button x-on:click="open = true" class="block h-12 w-12 rounded-full overflow-hidden focus:outline-none">
+              <%= image_tag user_avatar(current_user), alt: "avatar", class: "h-full w-full object-cover" %>
+            </button>
+            <!-- Dropdown Body -->
+            <div x-show.transition="open" x-on:click.away="open = false" class="absolute right-0 w-40 mt-2 py-2 bg-white border rounded shadow-xl">
+              <%= link_to edit_user_registration_path, class:"block px-4" do %>
+                <% if admin? %> 
+                  &nbsp; <span class="uppercase tracking-wide text-sm text-indigo-600 font-bold">ADMIN</span> 
+                <% else %>
+                  &nbsp; <span class="text-indigo-600 font-bold">Hei</span>
+                <% end %>
+                <%= current_user.first_name %>! <!-- To get user's full name change first_name to name -->
               <% end %>
-            <% end %>
-            <% if current_user.admin? %>
-              <%= link_to rails_admin_path, class: "navbar-item" do %>
-                <i class="fas fa-user-shield"></i>&nbsp; Admin Dashboard
-              <%end%>
-              <%= link_to new_user_invitation_path, class: "navbar-item" do %>
-                <i class="far fa-paper-plane"></i>&nbsp; Invite
+              <% if current_user.admin? %>
+                <div class="py-2">
+                  <hr></hr>
+                </div>
+                <%= link_to rails_admin_path, class: "transition-colors duration-200 block px-4 py-2 text-normal text-gray-900 rounded hover:bg-indigo-500 hover:text-white" do %>
+                  <i class="fas fa-user-shield"></i>&nbsp; Admin Dashboard
+                <%end%>
+                <%= link_to new_user_invitation_path, class: "transition-colors duration-200 block px-4 py-2 text-normal text-gray-900 rounded hover:bg-indigo-500 hover:text-white" do %>
+                  <i class="far fa-paper-plane"></i>&nbsp; Invite
+                <% end %>
               <% end %>
-            <% end %>
-            <%= link_to edit_user_registration_path, title: "#{current_user.name.to_s.humanize} account settings", class: "navbar-item" do %>
-              <i class="fas fa-user-cog"></i>&nbsp; Settings
-            <% end %>
-            <div class="dropdown-divider"></div>
-            <%= link_to destroy_user_session_path, method: :delete, title: 'Sign out', class:"navbar-item" do %>
-              <i class="fas fa-sign-out-alt"></i>&nbsp; Sign Out
-            <% end %>
+
+              <div class="py-2">
+                <hr></hr>
+              </div>
+
+              <%= link_to edit_user_registration_path, title: "#{current_user.name.to_s.humanize} account settings", class: "transition-colors duration-200 block px-4 py-2 text-normal text-gray-900 rounded hover:bg-indigo-500 hover:text-white" do %>
+                <i class="fas fa-user-cog"></i>&nbsp; Settings
+              <% end %>
+              <div class="py-2">
+                <hr></hr>
+              </div>
+              <%= link_to destroy_user_session_path, method: :delete, title: 'Logout', class:"transition-colors duration-200 block px-4 py-2 text-normal text-gray-900 rounded hover:bg-indigo-500 hover:text-white" do %>
+                <i class="fas fa-sign-out-alt"></i>&nbsp; Logout
+              <% end %>
+            </div>
+            <!-- // Dropdown Body -->
           </div>
+          <!-- // Dropdown -->
         </div>
       <% else %>
         <%= link_to new_user_registration_path, title: 'Nauti muista palveluista', class:"block lg:inline-block mt-4 lg:mt-0 lg:mr-8 text-blue-900 hover:text-blue-700" do %>
           <i class="fas fa-user-plus"></i>&nbsp; <%= t'.sign_up', :default => "Register" %>
         <% end %>
-          <%= link_to new_user_session_path, title: 'Hanki lisää palveluita', class:"inline-block py-3 px-6 mt-4 lg:mt-0 leading-none text-white bg-indigo-500 hover:bg-indigo-600 rounded shadow" do %>
-            <i class="fas fa-sign-in-alt"></i>&nbsp; <%= t'.sign_in', :default => "Sign In" %>
-          <% end %>
+        <%= link_to new_user_session_path, title: 'Hanki lisää palveluita', class:"inline-block py-3 px-6 mt-4 lg:mt-0 leading-none text-white bg-indigo-500 hover:bg-indigo-600 rounded shadow" do %>
+          <i class="fas fa-sign-in-alt"></i>&nbsp; <%= t'.sign_in', :default => "Sign In" %>
+        <% end %>
       <% end %>
     </div>
   </div>

@@ -16,11 +16,19 @@ fi:
   review_login_alert: Kirjaudu sisään suorittaaksesi tämän toiminnon.
   not_authorized_alert: Sinulla ei ole valtuuksia suorittaa tätä toimintoa.
 
+  #controller/contacts_controller.rb
+  contact_page: "Yhteystiedot"
+  contact_sent_msg: Viesti lähetetty onnistuneesti, kiitos!
+  contact_filled_msg: Oho! viesti epäonnistui, tarkista, että kaikki kentät on täytetty.
+
   #controller/home_controller.rb
   home_page: Etusivu
   about_page: "Tietoja"
   privacy_link: Yksityisyys
   terms_link: Ehdot
+
+  #controller/post_controller.rb
+  post_page: "Blogit"
 
   #cookies
   cookies_eu:
@@ -45,9 +53,46 @@ fi:
     download_pdf: "Lataa tiedosto."
     tip_view_1: "Esikatselutiedosto englanniksi."
     tip_view_2: "Esikatselutiedosto suomeksi."
-    or_text: "or"
+    or_text: "tai"
     view_pdf: "Esikatsele tiedosto."
-
+  #views/contact/index.html.erb
+  contacts:
+    new:
+      contact_intro: "Ota yhteyttä meihin"
+      contact_detail: "Yhteystietoni"
+      contact_addres: "Osoiteinformaatiota"
+      phone: "Puhelinnumero"
+      email: "Sähköposti"
+      greetings: "Hei Tervetuloa"
+      name: "nimi"
+      msg: "viesti"
+      bye: "Hei hei"
+      formnote: "Ota yhteyttä!"
+      contact_name: Nimi
+      contact_email: Sähköposti
+      contact_subject: Aihe
+      contact_body: Kirjoita viesti
+      contact_send: Lähetä viesti
+      contact_note: Anteeksi! Yhteyslomake on käytettävissä kirjautuneille käyttäjille.
+  #Views/posts
+  posts:
+    #index.html.erb
+    index:
+      page_title: "Blogit"
+      post_discrip: "Varo virheitä alla olevassa koodissa; Olen vain osoittanut olevansa oikein, en ole kokeillut sitä."
+      previous_page: Edellinen
+    #show.html.erb
+    show:
+      bloghomelink: "Etusivu"
+      go_back: "Näytä kaikki"
+      back_link: "Näytä kaikki"
+      post_bugdiv: "“Puhu on halpaa. Näytä minua koodi.”"
+      min_read: Joku lukee
+      tipdemolink: "Artikkelin kuva"
+      created_by: "Luonut:"
+      post_time: "sitten"
+      post_updated: "viimeisin päivitys"
+      browse_mo: Selaa Lisää
   #Views/shared/
   shared:
     #views/shared/_Footer

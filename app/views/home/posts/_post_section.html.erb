@@ -1,0 +1,36 @@
+<% @posts.each do |post| %>
+  <%= content_tag :tr, id: dom_id(post), class: dom_class(post) do %>
+    <div class="w-full lg:w-1/3 px-4 mb-8 lg:mb-0">
+      <div class="h-full pb-8 rounded shadow-md">
+        <a href="<%= post_path(post) %>">
+          <% if post.main_image.attached? %>
+            <%= image_tag post.main_image, title: "#{post.title}", alt: "#{post.title} by #{post.author}", class: "mb-4" %>
+          <% else %>
+            <!-- Show placeholder or nothing -->
+            <%= image_tag("placeholders/pictures/office.jpg", alt: "office", class: "mb-4") %>
+          <% end %>
+
+          <div class="px-6">
+            <small>
+              <%= post.created_at.strftime("%b %d, %Y") %> | <%= t".created_by", :default => "By" %> <%= post.author unless post.author.blank? %>
+            </small>
+            <h3 class="text-xl my-3 font-heading">
+              <%= link_to post.title, post_path(post) %>
+            </h3>
+            <p class="text-gray-500">
+              <%= truncate(strip_tags(post.description.to_s), length:256, escape: false, omission: "... (continued)") %>
+            </p>
+          </div>
+        </a>
+
+        <div class="px-4 mb-8 mt-4 lg:mb-0 justify-end">
+          <button>
+            <%= link_to post_path(post), class: "bg-transparent hover:shadow border border-gray-500 hover:border-teal-500 hover:no-underline text-xs text-gray-500 hover:text-teal-500 font-bold py-2 px-4 rounded-full", data: {disable_with: "Loading..."} do %>
+              <%= t".read_btn", :default => "Read more »" %>
+            <% end %>
+          </button>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>
