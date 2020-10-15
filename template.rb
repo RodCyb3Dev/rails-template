@@ -1047,7 +1047,6 @@ def add_rails_admin
 end
 
 # Main setup
-#add_template_repository_to_source_path
 
 say 'Applying gems...'
 add_gems
