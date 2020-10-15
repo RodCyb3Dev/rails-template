@@ -8,7 +8,23 @@ Author URI: https://kodeflash.com
 Instructions: $ rails new myapp -d <postgresql, mysql, sqlite> -m template.rb
 =end
 def source_paths
-  [File.expand_path(File.dirname(__FILE__))]
+  if __FILE__ =~ %r{\Ahttps?://}
+    require "tmpdir"
+    source_paths.unshift(tempdir = Dir.mktmpdir("kodeflash-Rails-template-"))
+    at_exit { FileUtils.remove_entry(tempdir) }
+    git clone: [
+      "--quiet",
+      "https://github.com/Rodcode47/kodeflash-Rails-template.git",
+      tempdir
+    ].map(&:shellescape).join(" ")
+
+
+    if (branch = __FILE__[%r{kodeflash-Rails-template/(.+)/template.rb}, 1])
+      Dir.chdir(tempdir) { git checkout: branch }
+    end
+  else
+    source_paths.unshift(File.dirname(__FILE__))
+  end
 end
 
 def rails_version
