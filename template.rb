@@ -1,4 +1,5 @@
 require "fileutils"
+require "shellwords"
 
 =begin
 Template Name: Kodeflash application template - Tailwind CSS
@@ -6,23 +7,24 @@ Author: Rodney H
 Author URI: https://kodeflash.com
 Instructions: $ rails new myapp -d <postgresql, mysql, sqlite> -m template.rb
 =end
+def add_template_repository_to_source_path
+  if __FILE__ =~ %r{\Ahttps?://}
+    require "tmpdir"
+    source_paths.unshift(tempdir = Dir.mktmpdir("kodeflash-Rails-template-"))
+    at_exit { FileUtils.remove_entry(tempdir) }
+    git clone: [
+      "--quiet",
+      "https://raw.githubusercontent.com/Rodcode47/kodeflash-Rails-template/master/template.rb",
+      tempdir
+    ].map(&:shellescape).join(" ")
 
-def get_remote(src, dest = nil)
-  dest ||= src
-  if ENV['RAILS_TEMPLATE_DEBUG'].present?
-    repo = File.join(File.dirname(__FILE__), 'master/')
+
+    if (branch = __FILE__[%r{kodeflash-Rails-template/(.+)/template.rb}, 1])
+      Dir.chdir(tempdir) { git checkout: branch }
+    end
   else
-    repo = 'https://raw.githubusercontent.com/Rodcode47/kodeflash-Rails-template/master/'
-  end
-  remote_file = repo + src
-  get(remote_file, dest, force: true)
-  replace_myapp(dest)
-end
-
-def get_remote_dir(names, dir)
-  names.each do |name|
-    src = File.join(dir, name)
-    get_remote(src)
+    #source_paths.unshift(File.dirname(__FILE__))
+    [File.expand_path(File.dirname(__FILE__))]
   end
 end
 
@@ -407,14 +409,11 @@ def copy_templates
   say 'Copying files & folders...'
   #copy_file "Procfile"
   #copy_file "Procfile.dev"
-  get_remote_dir(app, 'app')
-  get_remote_dir(config, 'config')
-  get_remote_dir(lib, 'lib')
-  get_remote_dir(public, 'public')
-  #directory "app", force: true
-  #directory "config", force: true
-  #directory "lib", force: true
-  #directory "public", force: true
+
+  directory "app", force: true
+  directory "config", force: true
+  directory "lib", force: true
+  directory "public", force: true
 end
 
 # Add Action text to application.scss
@@ -1047,6 +1046,7 @@ def add_rails_admin
 end
 
 # Main setup
+add_template_repository_to_source_path
 
 say 'Applying gems...'
 add_gems
