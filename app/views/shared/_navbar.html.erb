@@ -28,9 +28,29 @@
   </div>
   <div class="navbar-menu hidden lg:flex lg:flex-grow lg:items-center w-full lg:w-auto">
     <div class="lg:mr-auto">
-      <a class="block lg:inline-block mt-4 lg:mt-0 mr-10 text-blue-900 hover:text-blue-700" href="/about"><%= t'.about_nav' %></a>
-      <a class="modal-open block lg:inline-block mt-4 lg:mt-0 mr-10 text-blue-900 hover:text-blue-700" href="/contact"><%= t'.contact_nav' %></a>
-      <a class="block lg:inline-block mt-4 lg:mt-0 text-blue-900 hover:text-blue-700" href="/posts"><%= t'.blog_page' %></a>
+      <% unless current_page?('/about') %>
+        <%= link_to '/about', title: t('.about_nav') do %>
+          <span class="block lg:inline-block mt-4 lg:mt-0 mr-10 text-blue-900 hover:text-blue-700">
+            <%= t'.about_nav' %>
+          </span>
+        <% end %>
+      <% end %>
+    
+      <% unless current_page?('/contact') %>
+        <%= link_to '/contact', title: t('.contact_nav') do %>
+          <span class="block lg:inline-block mt-4 lg:mt-0 mr-10 text-blue-900 hover:text-blue-700">
+          <%= t'.contact_nav' %>
+          </span>
+        <% end %>
+      <% end %>
+    
+      <% unless current_page?('/posts') %>
+        <%= link_to '/posts', title: t('.blog_page') do %>
+          <span class="block lg:inline-block mt-4 lg:mt-0 text-blue-900 hover:text-blue-700">
+            <%= t'.blog_page' %>
+          </span>
+        <% end %>
+      <% end %>
     </div>
     <div class="relative inline-block text-left">
       <div class="rounded-md bg-white shadow-xs" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">

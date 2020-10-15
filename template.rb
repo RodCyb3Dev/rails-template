@@ -14,7 +14,7 @@ def add_template_repository_to_source_path
     at_exit { FileUtils.remove_entry(tempdir) }
     git clone: [
       "--quiet",
-      "https://raw.githubusercontent.com/Rodcode47/kodeflash-Rails-template/master/template.rb",
+      "https://github.com/Rodcode47/kodeflash-Rails-template.git",
       tempdir
     ].map(&:shellescape).join(" ")
 
@@ -23,8 +23,8 @@ def add_template_repository_to_source_path
       Dir.chdir(tempdir) { git checkout: branch }
     end
   else
-    #source_paths.unshift(File.dirname(__FILE__))
-    [File.expand_path(File.dirname(__FILE__))]
+    source_paths.unshift(File.dirname(__FILE__))
+    #[File.expand_path(File.dirname(__FILE__))]
   end
 end
 
@@ -71,6 +71,7 @@ def add_gems
   gem 'sidekiq'
   gem 'sitemap_generator'
   gem 'whenever', require: false
+  gem 'IPinfo'
   gem 'friendly_id', '~> 5.4.0'
   #gem 'pdfjs_viewer-rails'
   gem 'sassc-rails'
@@ -201,8 +202,18 @@ def add_users
   inject_into_file("app/models/user.rb", ", omniauth_providers: [:linkedin, :twitter, :github, :google_oauth2]", after: ":validatable")
 
   inject_into_file 'app/models/user.rb', before: 'end' do
-  "\n  enum role: [:user, :admin, :vip] # You can call your roles whatever you want. User will be 1, Admin will be 2, and VIP will be 3.
+  "\n  attr_accessor :login
+  enum role: [:user, :admin, :vip] # You can call your roles whatever you want. User will be 1, Admin will be 2, and VIP will be 3.
   after_initialize :set_default_role, :if => :new_record?
+
+  def self.find_for_database_authentication warden_condition
+    conditions = warden_condition.dup
+    login = conditions.delete(:login)
+    where(conditions).where(
+      ['lower(username) = :value OR lower(email) = :value', 
+        { value: login.strip.downcase }
+      ]).first
+  end
 
   def set_default_role
     self.role ||= :user
@@ -249,7 +260,7 @@ def add_users
 
   find_and_replace_in_file('config/initializers/devise.rb', "# config.parent_mailer = 'ActionMailer::Base'", "config.parent_mailer = 'ActionMailer::Base'")
 
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.authentication_keys = [:email]', 'config.authentication_keys = [:email]')
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.authentication_keys = [:email]', 'config.authentication_keys = [:login]')
 
   find_and_replace_in_file('config/initializers/devise.rb', '# config.request_keys = []', 'config.request_keys = []')
 
@@ -407,8 +418,8 @@ end
 
 def copy_templates
   say 'Copying files & folders...'
-  #copy_file "Procfile"
-  #copy_file "Procfile.dev"
+  copy_file "Procfile"
+  copy_file "Procfile.dev"
 
   directory "app", force: true
   directory "config", force: true
@@ -593,6 +604,20 @@ def add_whenever
   run "wheneverize ."
 end
 
+def add_custom_fields
+  generate "migration addFieldsToUsers terms:boolean location:string"
+
+  inject_into_file 'config/environments/development.rb', before: 'Rails.application.configure do' do
+  "require 'IPinfo'\n"
+  end
+
+  inject_into_file 'config/environments/development.rb', after: "# config.file_watcher = ActiveSupport::EventedFileUpdateChecker" do
+  "\n  config.middle.use(IPinfoMiddleware, {
+    token: Rails.application.credentions.dig(:ipinfo_token)
+  })\n"
+  end
+end
+
 def add_friendly_id
   generate "friendly_id"
   generate "migration AddSlugToUsers slug:uniq"
@@ -685,6 +710,18 @@ def add_demo_post
     @page_description = @post.description
     @page_keywords = @post.description"
   end
+end
+
+def changes_to_cable
+  inject_into_file 'config/cable.yml', after: "development:" do
+    "\n adapter: async"
+  end
+  inject_into_file 'config/cable.yml', after: "test:" do
+    "\n adapter: test"
+  end
+  find_and_replace_in_file('config/cable.yml', 'adapter: redis', '#adapter: redis')
+  find_and_replace_in_file('config/cable.yml', 'url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>', '#url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>')
+  find_and_replace_in_file('config/cable.yml', 'channel_prefix: streaming_logs_dev', '#channel_prefix: streaming_logs_dev')
 end
 
 def remove_post_form_and_show
@@ -1071,6 +1108,7 @@ after_bundle do
   add_friendly_to_user
   add_change_in_friendly_id
   add_demo_post
+  changes_to_cable
   remove_post_form_and_show
   create_post_form
   create_post_show

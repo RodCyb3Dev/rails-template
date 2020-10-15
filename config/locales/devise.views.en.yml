@@ -117,7 +117,7 @@ en:
     registrations:
       destroyed: Bye! Your account has been successfully cancelled. We hope to see you again soon.
       edit:
-        name: Full Name
+        name: Full name
         username: Username
         password: Password
         confirm_password: Confirm password
@@ -132,7 +132,7 @@ en:
         we_need_your_current_password_to_confirm_your_changes: we need your current password to confirm your changes
       new:
         sign_up: Sign up
-        name: Full Name
+        name: Full name
         username: Username
         email: Email
         password: Password
@@ -157,7 +157,7 @@ en:
       already_signed_out: Signed out successfully.
       new:
         sign_in: Log in
-        email: Email
+        email: Email Or Username
         password: Password
         remember_me: Remember me
       signed_in: Signed in successfully.

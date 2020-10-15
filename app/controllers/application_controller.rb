@@ -65,9 +65,10 @@ class ApplicationController < ActionController::Base
   protected
 
     def configure_permitted_parameters
-      devise_parameter_sanitizer.permit(:sign_up, keys: [:name])
-      devise_parameter_sanitizer.permit(:account_update, keys: [:name, :avatar])
-      devise_parameter_sanitizer.permit :accept_invitation, keys: [:name, :email]
+      devise_parameter_sanitizer.permit(:sign_up, keys: [:username, :name, :email])
+      devise_parameter_sanitizer.permit(:sign_in, keys: [:login])
+      devise_parameter_sanitizer.permit(:account_update, keys: [:username, :name, :email, :avatar])
+      devise_parameter_sanitizer.permit :accept_invitation, keys: [:username, :name, :email]
     end
 
   private

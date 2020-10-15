@@ -160,7 +160,7 @@ fi:
       new:
         sign_in: Kirjaudu sisään
         name: Käyttäjätunnus
-        email: Sähköposti
+        email: Sähköposti tai Käyttäjätunnus
         password: Salasana
         remember_me: Muista minut
       signed_in: Sisäänkirjautuminen onnistui.

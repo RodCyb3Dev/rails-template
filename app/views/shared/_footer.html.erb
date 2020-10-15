@@ -7,10 +7,37 @@
       <a class="text-xl text-indigo-500 font-semibold" href="#"><%= t'.brand_name', :default => Rails.configuration.application_name %></a>
     </div>
     <div class="w-full lg:w-3/5 mt-4 lg:mt-0 text-center">
-      <a class="inline-block mx-4 mb-4 lg:mb-0 text-blue-900 hover:text-blue-700" href="/"> <%= t'.home_page' %> </a>
-      <a class="inline-block mx-4 mb-4 lg:mb-0 text-blue-900 hover:text-blue-700" href="/about"><%= t'.about_nav' %></a>
-      <a class="modal-open inline-block mx-4 mb-4 lg:mb-0 text-blue-900 hover:text-blue-700" href="/contact"><%= t'.contact_nav' %></a>
-      <a class="inline-block mx-4 mb-4 lg:mb-0 text-blue-900 hover:text-blue-700" href="/posts"><%= t'.blog_page' %></a>
+      <% unless current_page?(root_path) %>
+        <%= link_to '/', title: t('.home_page') do %>
+          <span class="inline-block mx-4 mb-4 lg:mb-0 text-blue-900 hover:text-blue-700">
+            <%= t'.home_page' %>
+          </span>
+        <% end %>
+      <% end %>
+
+      <% unless current_page?('/about') %>
+        <%= link_to '/about', title: t('.about_nav') do %>
+          <span class="inline-block mx-4 mb-4 lg:mb-0 text-blue-900 hover:text-blue-700">
+            <%= t'.about_nav' %>
+          </span>
+        <% end %>
+      <% end %>
+
+      <% unless current_page?('/contact') %>
+        <%= link_to '/contact', title: t('.contact_nav') do %>
+          <span class="inline-block mx-4 mb-4 lg:mb-0 text-blue-900 hover:text-blue-700">
+          <%= t'.contact_nav' %>
+          </span>
+        <% end %>
+      <% end %>
+
+      <% unless current_page?('/posts') %>
+        <%= link_to '/posts', title: t('.blog_page') do %>
+          <span class="inline-block mx-4 mb-4 lg:mb-0 text-blue-900 hover:text-blue-700">
+            <%= t'.blog_page' %>
+          </span>
+        <% end %>
+      <% end %>
     </div>
     <div class="flex justify-center lg:justify-end w-full lg:w-1/5 my-2 lg:my-0">
       <%= image_tag("placeholders/icons/message.svg", alt: "Image", class: "w-6 h-6") %>
@@ -20,9 +47,9 @@
   </div>
   <div class="py-4 text-center">
     <span class="block md:inline-block mb-4 md:mb-0 mx-3">
-      © <%= start_year %> - <%= Date.today.year %> <%= Rails.configuration.application_name, class: "font-bold text-blue-900" %> | <%= t'.dev_by' %> 
-      <%= link_to 'https://yo-resume.herokuapp.com/profile/Rodney%20Hammad', title: "Web Developer", class: "text-blue-900 hover:text-blue-700" do %>
-        Rodney H with &#10084;
+      © <%= start_year %> - <%= Date.today.year %> <span class="font-bold text-blue-900"> <%= Rails.configuration.application_name %> </span> | <%= t'.dev_by' %> 
+      <%= link_to 'https://yo-resume.herokuapp.com/profile/Rodney%20Hammad', target: "_blank", rel: "nofollow", class: "text-blue-900 hover:text-blue-700" do %>
+        <strong>Rodney H </strong> with &#10084;
       <% end %>
     </span>
     

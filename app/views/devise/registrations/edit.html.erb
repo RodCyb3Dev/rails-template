@@ -19,10 +19,14 @@
       </div>
 
       <span class="flex bg-grey-lighter items-center">
-        <%= f.text_field :name, autofocus: true, class: 'hover:shadow-lg block border border-grey-light w-full p-2 rounded mb-4', placeholder: t('.full_name', :default => 'Koko nimi') %>
+        <%= f.text_field :username, autofocus: true, class: 'hover:shadow-lg block border border-grey-light w-full p-2 rounded mb-4', placeholder: t('.full_name', :default => 'User name') %>
       </span>
 
-      <%= f.email_field :email, autofocus: false, autocomplete: "email", class: 'hover:shadow-lg block border border-grey-light w-full p-2 rounded mb-4', placeholder: t('.email', :default => 'Sähköposti') %>
+      <span class="flex bg-grey-lighter items-center">
+        <%= f.text_field :name, class: 'hover:shadow-lg block border border-grey-light w-full p-2 rounded mb-4', placeholder: t('.full_name', :default => 'Full name') %>
+      </span>
+
+      <%= f.email_field :email, autocomplete: "email", class: 'hover:shadow-lg block border border-grey-light w-full p-2 rounded mb-4', placeholder: t('.email', :default => 'Email') %>
 
       <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
         <div><%= t('.currently_waiting_confirmation_for_email', email: resource.unconfirmed_email) %></div>
