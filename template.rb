@@ -23,7 +23,6 @@ def rails_6?
   Gem::Requirement.new(">= 6.0.0", "< 7").satisfied_by? rails_version
 end
 
-say 'Applying gems...'
 def add_gems
   # Replace
   find_and_replace_in_file('Gemfile', "# gem 'bcrypt', '~> 3.1.7'", "gem 'bcrypt', '~> 3.1.7'")
@@ -91,7 +90,6 @@ def add_gems
   end
 end
 
-
 def stop_spring
   say "Stop spring if exists"
   run "spring stop"
@@ -121,7 +119,6 @@ production:
 remove_file "config/database.yml"
 create_file "config/database.yml", database_config
 
-
 def set_application_name
   # Add Application Name to Config
   if rails_5?
@@ -137,8 +134,8 @@ end
 # set config/application.rb
 application do <<-EOF
     # Set timezone
-    #config.time_zone = 'Helsinki'
-    #config.active_record.default_timezone = :local
+    config.time_zone = 'Helsinki'
+    config.active_record.default_timezone = :local
 
     # Set locale
     config.i18n.load_path += Dir[Rails.root.join('config', 'locales', '**', '*.{rb,yml}').to_s]
@@ -148,8 +145,8 @@ application do <<-EOF
   EOF
 end
 
-say 'Applying devise & creating User...'
 def add_users
+  say 'Applying devise & creating User...'
   # Install Devise
   generate "devise:install"
 
@@ -324,8 +321,9 @@ def find_and_replace_in_file(file_name, old_content, new_content)
   File.open(file_name, 'w') { |file| file.write new_contents }
 end
 
-say 'Applying devise invitable...'
 def add_user_invitation
+  say 'Applying devise invitable...'
+
   generate "devise_invitable:install"
   generate "devise_invitable User"
   generate "devise_invitable:views"
@@ -344,7 +342,10 @@ def add_assets
   end
 end
 
+# Not added
 def add_application_js
+  say 'Create & Adding require_* statements...'
+
   FileUtils.mkdir_p('app/assets/javascripts')
   app_js = 'app/assets/javascripts/application.js'
   FileUtils.touch(app_js)
@@ -362,16 +363,14 @@ def add_application_js
   end
 end
 
-def add_action_text
-  inject_into_file 'app/assets/stylesheets/application.scss', before: '// $navbar-default-bg: #312312;' do
-  "//= require actiontext\n"
-  end
-end
-
 # remove en.yml locale create by rails
+say 'Removing intalled en.yml file...'
 remove_file 'config/locales/en.yml'
 
+# Check if rails 6 & install webpacker
 def add_webpack
+  say 'Check if rails 6 else install webpacker...'
+
   # Rails 6+ comes with webpacker by default, so we can skip this step
   return if rails_6?
 
@@ -380,19 +379,44 @@ def add_webpack
   rails_command 'webpacker:install'
 end
 
+# Install feature via yarn or npm
 def add_features
+  say 'Installing stimulus, active_storage, & action_text via yarn or npm...'
+
   rails_command 'webpacker:install:stimulus'
   rails_command 'active_storage:install'
   rails_command 'action_text:install'
 end
 
-if options[:webpack]
-  gsub_file "app/views/layouts/_head.html.erb", /^.*stylesheet_link_tag.*$/, <<-EOF
-    = stylesheet_pack_tag 'application', media: 'all'#{", 'data-turbolinks-track': 'reload'" unless options[:skip_turbolinks]}
-  EOF
+def copy_templates
+  say 'Copying files & folders...'
+  #copy_file "Procfile"
+  #copy_file "Procfile.dev"
+
+  directory "app", force: true
+  directory "config", force: true
+  directory "lib", force: true
+  directory "public", force: true
+end
+
+# Add Action text to application.scss
+def add_action_text
+  say 'Adding action text require statement...'
+  inject_into_file 'app/assets/stylesheets/application.scss', before: '// $navbar-default-bg: #312312;' do
+  "//= require actiontext\n"
+  end
+
+  say 'Adding pack_tags to the layout header...'
+  if options[:webpack]
+    gsub_file "app/views/layouts/_head.html.erb", /^.*stylesheet_link_tag.*$/, <<-EOF
+      = stylesheet_pack_tag 'application', media: 'all'#{", 'data-turbolinks-track': 'reload'" unless options[:skip_turbolinks]}
+    EOF
+  end
 end
 
 def add_javascript
+  say 'Installing javaScript modules via yarn or npm...'
+
   run "yarn add expose-loader jquery popper.js bootstrap data-confirm-modal local-time @fortawesome/fontawesome-free @fullhuman/postcss-purgecss"
 
   if rails_5?
@@ -411,17 +435,8 @@ def add_javascript
   insert_into_file 'config/webpack/environment.js', content + "\n", before: "module.exports = environment"
 end
 
-def copy_templates
-  copy_file "Procfile"
-  copy_file "Procfile.dev"
-
-  directory "app", force: true
-  directory "config", force: true
-  directory "lib", force: true
-  directory "public", force: true
-end
-
 def add_tailwind
+  say 'Installing tailwindcss modules via yarn or npm & append imports...'
   # beta version for now
   run "yarn add tailwindcss"
   run "yarn add cookies-eu-banner"
@@ -444,16 +459,20 @@ def add_tailwind
 end
 
 def copy_postcss_config
+  say 'Removing initial postcss.config.js file...'
   run "rm postcss.config.js"
   copy_file "postcss.config.js"
 end
 
 # Remove Application CSS
 def remove_app_css
+  say 'Removing initial application.css file...'
   remove_file "app/assets/stylesheets/application.css"
 end
 
 def add_i18n_routes
+  say 'Adding routes...'
+
   content = <<-RUBY
   root to: 'home#index'
   get '/about', to: 'home#about'
@@ -665,53 +684,52 @@ def create_post_form
   FileUtils.touch(post_form)
   append_to_file post_form do
   '<%= form_with(model: post) do |form| %>
-
-    <div class="-mx-3 md:flex mb-6">
-      <div class="field md:w-1/2 px-3 mb-6 md:mb-0 border shadow-sm p-2">
-        <%= form.label :author %>:<br />
-        <%= form.text_field :author, class: "form-control appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4" %>
-        <%= form.error_for :author %>
-      </div>
-
-      <div class="field md:w-1/2 px-3 ml-2 mb-6 md:mb-0 border shadow-sm p-2">
-        <%= form.label :title %>:<br />
-        <%= form.text_field :title, class: "form-control appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4" %>
-        <%= form.error_for :title, class:"text-danger" %>
-      </div>
+  <div class="-mx-3 md:flex mb-6">
+    <div class="field md:w-1/2 px-3 mb-6 md:mb-0 border shadow-sm p-2">
+      <%= form.label :author %>:<br />
+      <%= form.text_field :author, class: "form-control appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4" %>
+      <%= form.error_for :author %>
     </div>
 
-    <div class="-mx-3 md:flex mb-6">
-      <div class="field md:w-1/2 px-3 mb-6 md:mb-0 border shadow-sm p-2">
-        <%= form.label :main_image %>: <br />
-        <%= form.file_field :main_image, direct_upload: true, class: "form-control appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4" %>
-      </div>
+    <div class="field md:w-1/2 px-3 ml-2 mb-6 md:mb-0 border shadow-sm p-2">
+      <%= form.label :title %>:<br />
+      <%= form.text_field :title, class: "form-control appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4" %>
+      <%= form.error_for :title, class:"text-danger" %>
     </div>
+  </div>
 
-    <div class="field form-group">
-      <%= form.label :description %>
-      <%= form.rich_text_area :description, class: "form-control", placeholder: "Write your story" %>
-      <%= form.error_for :description %>
-      <%= form.error_for :title, class:"text-red-600" %>
+  <div class="-mx-3 md:flex mb-6">
+    <div class="field md:w-1/2 px-3 mb-6 md:mb-0 border shadow-sm p-2">
+      <%= form.label :main_image %>: <br />
+      <%= form.file_field :main_image, direct_upload: true, class: "form-control appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4" %>
     </div>
+  </div>
+
+  <div class="field form-group">
+    <%= form.label :description %>
+    <%= form.rich_text_area :description, class: "form-control", placeholder: "Write your story" %>
+    <%= form.error_for :description %>
+    <%= form.error_for :title, class:"text-red-600" %>
+  </div>
+  <br />
+
+  <div class="field -mx-3 md:flex mb-6 mt-4">
+    <%= form.submit "👋 Save Post", class: "m-2 text-gray-800 font-bold rounded border-b-2 border-green-500 hover:border-green-600 hover:bg-green-500 hover:text-white no-underline hover:no-underline shadow-md py-2 px-6 inline-flex items-center", data: {disable_with: "Saving..."} %>
+
+    <% if post.persisted? %>
+      <%= link_to "Cancel", post, class: "m-2 text-gray-800 font-bold rounded border-b-2 border-yellow-500 hover:border-yellow-600 hover:bg-yellow-600 hover:text-white no-underline hover:no-underline shadow-md py-2 px-6 inline-flex items-center" %>
+    <% else %>
+      <%= link_to "Cancel", posts_path, class: "m-2 text-gray-800 font-bold rounded border-b-2 border-yellow-500 hover:border-yellow-600 hover:bg-yellow-600 hover:text-white no-underline hover:no-underline shadow-md py-2 px-6 inline-flex items-center" %>
+    <% end %>
+
+    <% if post.persisted? %>
+      <div class="float-right">
+        <%= link_to "Destroy", post, method: :delete, class: "m-2 text-gray-800 font-bold rounded border-b-2 border-red-500 hover:border-red-600 hover:bg-red-500 hover:text-white no-underline hover:no-underline shadow-md py-2 px-6 inline-flex items-center", data: { confirm: "Are you sure?" } %>
+      </div>
+    <% end %>
     <br />
-
-    <div class="field -mx-3 md:flex mb-6 mt-4">
-      <%= form.submit "👋 Save Post", class: "m-2 text-gray-800 font-bold rounded border-b-2 border-green-500 hover:border-green-600 hover:bg-green-500 hover:text-white no-underline hover:no-underline shadow-md py-2 px-6 inline-flex items-center", data: {disable_with: "Saving..."} %>
-
-      <% if post.persisted? %>
-        <%= link_to "Cancel", post, class: "m-2 text-gray-800 font-bold rounded border-b-2 border-yellow-500 hover:border-yellow-600 hover:bg-yellow-600 hover:text-white no-underline hover:no-underline shadow-md py-2 px-6 inline-flex items-center" %>
-      <% else %>
-        <%= link_to "Cancel", posts_path, class: "m-2 text-gray-800 font-bold rounded border-b-2 border-yellow-500 hover:border-yellow-600 hover:bg-yellow-600 hover:text-white no-underline hover:no-underline shadow-md py-2 px-6 inline-flex items-center" %>
-      <% end %>
-
-      <% if post.persisted? %>
-        <div class="float-right">
-          <%= link_to "Destroy", post, method: :delete, class: "m-2 text-gray-800 font-bold rounded border-b-2 border-red-500 hover:border-red-600 hover:bg-red-500 hover:text-white no-underline hover:no-underline shadow-md py-2 px-6 inline-flex items-center", data: { confirm: "Are you sure?" } %>
-        </div>
-      <% end %>
-      <br />
-    </div>
-  <% end %>'
+  </div>
+<% end %>'
   end
 end
 
@@ -721,116 +739,116 @@ def create_post_show
   FileUtils.touch(post_show)
   append_to_file post_show do
   '<% set_meta_tags og: {
-    title: @post.title,
-    description: @post.description,
-    type:     "article",
-    url:      "posts_url(@post)",
-    image:    "https://onebitcode.com/meu-seo/img.png",
-  } %>
-    <br>
-  <!--Container-->
-  <div class="container w-full flex flex-wrap mx-auto px-2 rounded-sm bg-transparent">
-    <div class="w-full lg:w-1/6 lg:mx-2 text-xl text-gray-800 leading-normal">
-      <!--Sticky topics-->
-      <div class="sticky bg-white hidden h-64 lg:h-auto overflow-x-hidden overflow-y-auto lg:overflow-y-hidden lg:block mt-0 y-20 shadow-sm rounded-sm" style="top:5em;" id="menu-content">
-        <div class="list-reset ml-2 my-2">
-          <%= link_to posts_path, class: "text-base md:text-sm text-indigo-500 font-bold ml-4" do %>
-            <span class="text-base text-indigo-500 font-bold">&laquo;<span> <%= t".back_link" %>
-          <% end %>
+  title: @post.title,
+  description: @post.description,
+  type:     "article",
+  url:      "posts_url(@post)",
+  image:    "https://onebitcode.com/meu-seo/img.png",
+} %>
+<br>
+<!--Container-->
+<div class="container w-full flex flex-wrap mx-auto px-2 rounded-sm bg-transparent">
+  <div class="w-full lg:w-1/6 lg:mx-2 text-xl text-gray-800 leading-normal">
+    <!--Sticky topics-->
+    <div class="sticky bg-white hidden h-64 lg:h-auto overflow-x-hidden overflow-y-auto lg:overflow-y-hidden lg:block mt-0 y-20 shadow-sm rounded-sm" style="top:5em;" id="menu-content">
+      <div class="list-reset ml-2 my-2">
+        <%= link_to posts_path, class: "text-base md:text-sm text-indigo-500 font-bold ml-4" do %>
+          <span class="text-base text-indigo-500 font-bold">&laquo;<span> <%= t".back_link" %>
+        <% end %>
 
-          <div class="mt-5 flex lg:mt-0 lg:ml-4">
-            <span class="hidden sm:block shadow-sm rounded-md">
-              <%= link_to icon("fab", "readme"), posts_path, type: "button", class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-red-600 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 active:text-gray-800 active:bg-gray-50 active:text-gray-800 transition duration-150 ease-in-out" %>
+        <div class="mt-5 flex lg:mt-0 lg:ml-4">
+          <span class="hidden sm:block shadow-sm rounded-md">
+            <%= link_to icon("fab", "readme"), posts_path, type: "button", class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-red-600 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 active:text-gray-800 active:bg-gray-50 active:text-gray-800 transition duration-150 ease-in-out" %>
+          </span>
+          <% if admin? %>
+            <span class="hidden sm:block ml-3 shadow-sm rounded-md">
+              <%= link_to icon("far", "edit"), edit_post_path(@post), type: "button", class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 active:text-gray-800 active:bg-gray-50 transition duration-150 ease-in-out", title: "Edit post" %>
             </span>
-            <% if admin? %>
-              <span class="hidden sm:block ml-3 shadow-sm rounded-md">
-                <%= link_to icon("far", "edit"), edit_post_path(@post), type: "button", class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 active:text-gray-800 active:bg-gray-50 transition duration-150 ease-in-out", title: "Edit post" %>
-              </span>
 
-              <span class="hidden sm:block ml-3 shadow-sm rounded-md">
-                <%= link_to icon("far", "trash-alt"), @post, method: :delete, data: { confirm: "Are you sure you want to delete this?" }, type: "button", class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-red-600 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 active:text-gray-800 active:bg-gray-50 active:text-gray-800 transition duration-150 ease-in-out" %>
-              </span>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="w-full lg:w-4/5 p-8 mt-6 lg:mt-0 text-gray-900 leading-normal bg-white border border-gray-400 border-rounded rounded-sm">
-      <!--Title-->
-      <div class="font-sans">
-        <h1 class="text-center font-sans font-bold text-indigo-500 pt-2 text-2xl capitalize">
-          <span class="hover:text-teal-500">👋 <%= title @post.title %></span>
-        </h1>
-        <span class="ml-2"><%= t".min_read" %> · <%= time_ago_in_words(3.minutes.from_now) %> <%= t".post_time" %></span>
-      </div>
-      <hr class="border-b border-gray-400">
-      <!--image-->
-      <div class="container w-full max-w-6xl mx-auto bg-cover mt-4 rounded">
-        <%= image_tag @post.main_image, title: "#{@post.title}", alt: "#{@post.title} by #{@post.author}", style: "h-full w-full object-cover background-image rounded shadow-md", height: "75vh" if @post.main_image.attached? %>
-      </div>
-      
-      <!--blog Content-->
-      <p class="py-2 ex3 blog-content">
-        <%= @post.description %>
-      </p>
-      <!--/ blog Content-->
-      <hr class="border-b border-indigo-500 mt-3">
-      <section class="mt-3 container mx-auto flex items-center justify-around">
-        <div>
-          <div class="flex rounded border-b-2 border-grey-600 overflow-hidden">
-            <% if @post.previous %>
-              <div class="bg-yellow-400 shadow-border p-2">
-                <div class="w-4 h-4">
-                  <<
-                </div>
-              </div>
-              <%= link_to t(".prev_link", :default => "Previous"), @post.previous, class: "block text-gray-800 text-bg hover:shadow shadow-border bg-gray-200 hover:bg-yellow-400 hover:no-underline text-bg py-2 px-4 font-sans tracking-wide font-bold" %>
-            <% end %>
-          </div>
-        </div>
-        <div>
-          <div class="flex rounded border-b-2 border-grey-600 overflow-hidden">
-            <% if @post.next %>
-              <%= link_to t(".next_link", :default => "Next"), @post.next, class: "block text-gray-800 text-bg hover:bg-gray-200 hover:shadow shadow-border bg-gray-200 hover:bg-teal-400 hover:no-underline text-bg py-2 px-4 font-sans tracking-wide font-bold" %>
-              <div class="bg-teal-400 shadow-border p-2">
-                <div class="w-4 h-4">
-                  >>
-                </div>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </section>
-      
-      <hr class="mt-2">
-      <!--Author-->
-      <div class="flex w-full bg-white items-center font-sans">
-        <%= image_tag "https://i.pravatar.cc/300", alt: "Avatar of Author", class: "w-10 h-10 rounded-full avatar mr-4 mt-2" %>     
-        
-        <!-- root_admin_user.first_name -->
-        <div class="flex-1">
-          <%= link_to t(".follow_btn", :default => "Follow"), new_user_session_path, class: "bg-transparent hover:shadow border border-gray-500 hover:border-teal-500 hover:no-underline text-xs text-gray-500 hover:text-teal-500 font-bold py-2 px-4 mb-3 rounded-full" if @current_user.nil? %>
-          <p class="text-sm leading-none mt-3">
-            <%= t".created_by" %> <b><%= @post.author unless @post.author.blank? %></b>
-          </p>
-        </div>
-        <div class="justify-end">
-          <%= link_to posts_path, class: "bg-transparent hover:shadow border border-gray-500 hover:border-indigo-500 text-xs text-gray-500 hover:text-indigo-500 font-bold py-2 px-4 rounded-full" do %>
-            <%= t".browse_mo" %>
+            <span class="hidden sm:block ml-3 shadow-sm rounded-md">
+              <%= link_to icon("far", "trash-alt"), @post, method: :delete, data: { confirm: "Are you sure you want to delete this?" }, type: "button", class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-5 font-medium rounded-md text-gray-700 bg-white hover:text-red-600 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 active:text-gray-800 active:bg-gray-50 active:text-gray-800 transition duration-150 ease-in-out" %>
+            </span>
           <% end %>
-        </div>
-      </div>
-      <!--/Author-->
-
-      <!--Back link -->
-      <div class="w-full lg:w-4/5 lg:ml-auto text-base md:text-sm text-gray-500 px-4 py-6">
-        <div class="pull-right text-base md:text-sm text-indigo-500 font-bold">
-          <%= link_to t("go_back", :default => "<< Go back"), :back %>
         </div>
       </div>
     </div>
   </div>
-  <!--/container-->'
+  <div class="w-full lg:w-4/5 p-8 mt-6 lg:mt-0 text-gray-900 leading-normal bg-white border border-gray-400 border-rounded rounded-sm">
+    <!--Title-->
+    <div class="font-sans">
+      <h1 class="text-center font-sans font-bold text-indigo-500 pt-2 text-2xl capitalize">
+        <span class="hover:text-teal-500">👋 <%= title @post.title %></span>
+      </h1>
+      <span class="ml-2"><%= t".min_read" %> · <%= time_ago_in_words(3.minutes.from_now) %> <%= t".post_time" %></span>
+    </div>
+    <hr class="border-b border-gray-400">
+    <!--image-->
+    <div class="container w-full max-w-6xl mx-auto bg-cover mt-4 rounded">
+      <%= image_tag @post.main_image, title: "#{@post.title}", alt: "#{@post.title} by #{@post.author}", style: "h-full w-full object-cover background-image rounded shadow-md", height: "75vh" if @post.main_image.attached? %>
+    </div>
+    
+    <!--blog Content-->
+    <p class="py-2 ex3 blog-content">
+      <%= @post.description %>
+    </p>
+    <!--/ blog Content-->
+    <hr class="border-b border-indigo-500 mt-3">
+    <section class="mt-3 container mx-auto flex items-center justify-around">
+      <div>
+        <div class="flex rounded border-b-2 border-grey-600 overflow-hidden">
+          <% if @post.previous %>
+            <div class="bg-yellow-400 shadow-border p-2">
+              <div class="w-4 h-4">
+                <<
+              </div>
+            </div>
+            <%= link_to t(".prev_link", :default => "Previous"), @post.previous, class: "block text-gray-800 text-bg hover:shadow shadow-border bg-gray-200 hover:bg-yellow-400 hover:no-underline text-bg py-2 px-4 font-sans tracking-wide font-bold" %>
+          <% end %>
+        </div>
+      </div>
+      <div>
+        <div class="flex rounded border-b-2 border-grey-600 overflow-hidden">
+          <% if @post.next %>
+            <%= link_to t(".next_link", :default => "Next"), @post.next, class: "block text-gray-800 text-bg hover:bg-gray-200 hover:shadow shadow-border bg-gray-200 hover:bg-teal-400 hover:no-underline text-bg py-2 px-4 font-sans tracking-wide font-bold" %>
+            <div class="bg-teal-400 shadow-border p-2">
+              <div class="w-4 h-4">
+                >>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </section>
+    
+    <hr class="mt-2">
+    <!--Author-->
+    <div class="flex w-full bg-white items-center font-sans">
+      <%= image_tag "https://i.pravatar.cc/300", alt: "Avatar of Author", class: "w-10 h-10 rounded-full avatar mr-4 mt-2" %>     
+      
+      <!-- root_admin_user.first_name -->
+      <div class="flex-1">
+        <%= link_to t(".follow_btn", :default => "Follow"), new_user_session_path, class: "bg-transparent hover:shadow border border-gray-500 hover:border-teal-500 hover:no-underline text-xs text-gray-500 hover:text-teal-500 font-bold py-2 px-4 mb-3 rounded-full" if @current_user.nil? %>
+        <p class="text-sm leading-none mt-3">
+          <%= t".created_by" %> <b><%= @post.author unless @post.author.blank? %></b>
+        </p>
+      </div>
+      <div class="justify-end">
+        <%= link_to posts_path, class: "bg-transparent hover:shadow border border-gray-500 hover:border-indigo-500 text-xs text-gray-500 hover:text-indigo-500 font-bold py-2 px-4 rounded-full" do %>
+          <%= t".browse_mo" %>
+        <% end %>
+      </div>
+    </div>
+    <!--/Author-->
+
+    <!--Back link -->
+    <div class="w-full lg:w-4/5 lg:ml-auto text-base md:text-sm text-gray-500 px-4 py-6">
+      <div class="pull-right text-base md:text-sm text-indigo-500 font-bold">
+        <%= link_to t("go_back", :default => "<< Go back"), :back %>
+      </div>
+    </div>
+  </div>
+</div>
+<!--/container-->'
   end
 end
 
@@ -840,65 +858,65 @@ def create_post_index
   FileUtils.touch(post_index)
   append_to_file post_index do
   '<!--Posts Container-->
-  <div class="container flex flex-wrap justify-between" style="margin-top: 2rem;">
-    <div class="text-center container">
-      <h2 class="font-bold break-normal text-3xl md:text-5xl"><u><%=t ".page_title" %></u></h2>
-      <p class="lead post-description"><%=t ".post_discrip" %></p>
-    </div>
-    
-    <%# if user_signed_in? && current_user %>
-    <%# if user_signed_in? %>
-    <% if admin? %>
-      <div class="flex flex-col flex-grow flex-shrink w-full">
-        <%= link_to new_post_path, class: "block w-full text-center py-2 rounded shadow-md bg-green-400 text-white hover:bg-green-600 focus:outline-none my-1 hover:no-underline" do %>
-          <i class="pencil alternate icon"></i> 
-          Add New Post
-        <% end %>
-      </div>
-    <% end %>
+<div class="container flex flex-wrap justify-between" style="margin-top: 2rem;">
+  <div class="text-center container">
+    <h2 class="font-bold break-normal text-3xl md:text-5xl"><u><%=t ".page_title" %></u></h2>
+    <p class="lead post-description"><%=t ".post_discrip" %></p>
   </div>
-
-  <section class="py-12 px-4">
-    <div class="flex flex-wrap -mx-4">
-      <% if @posts.count == 0 %>
-        <h2 class="text-center text-yellow-600 font-serif"> There are no <b>Posts</b> yet! we will publish soon. <br> Please check back later.</h2>
-      <% else %>
-        <% @posts.each do |post| %>
-          <%= content_tag :tr, id: dom_id(post), class: dom_class(post) do %>
-            <div class="w-full lg:w-1/3 px-4 mb-8 lg:mb-8">
-              <div class="h-full pb-8 mt-5 rounded shadow-md">
-                <a href="<%= post_path(post) %>">
-                  <% if post.main_image.attached? %>
-                    <%= image_tag post.main_image, title: "#{post.title}", alt: "#{post.title} by #{post.author}", class: "mb-4" %>
-                  <% else %>
-                    <!-- Show nothing -->
-                  <% end %>
-                  <div class="px-6">
-                    <small>
-                      <%= post.created_at.strftime("%b %d, %Y") %> | <%= t".created_by" %> <%= post.author unless post.author.blank? %>
-                    </small>
-                    <h3 class="text-xl my-3 font-heading">
-                      <%= link_to post.title, post_path(post) %>
-                    </h3>
-                    <p class="text-gray-500">
-                      <%= truncate(strip_tags(post.description.to_s), length:356, escape: false, omission: "... (continued)") %>
-                    </p>
-                  </div>
-                </a>
-                <div class="px-4 mb-8 mt-4 lg:mb-0 justify-end">
-                  <button>
-                    <%= link_to post_path(post), class: "bg-transparent hover:shadow border border-gray-500 hover:border-teal-500 hover:no-underline text-xs text-gray-500 hover:text-teal-500 font-bold py-2 px-4 rounded-full shadow-md", data: {disable_with: "Loading..."} do %>
-                      <%= t".read_btn", :default => "Read more »" %>
-                    <% end %>
-                  </button>
-                </div>
-              </div>
-            </div>
-          <% end %>
-        <% end %>
+  
+  <%# if user_signed_in? && current_user %>
+  <%# if user_signed_in? %>
+  <% if admin? %>
+    <div class="flex flex-col flex-grow flex-shrink w-full">
+      <%= link_to new_post_path, class: "block w-full text-center py-2 rounded shadow-md bg-green-400 text-white hover:bg-green-600 focus:outline-none my-1 hover:no-underline" do %>
+        <i class="pencil alternate icon"></i> 
+        Add New Post
       <% end %>
     </div>
-  </section>'
+  <% end %>
+</div>
+
+<section class="py-12 px-4">
+  <div class="flex flex-wrap -mx-4">
+    <% if @posts.count == 0 %>
+      <h2 class="text-center text-yellow-600 font-serif"> There are no <b>Posts</b> yet! we will publish soon. <br> Please check back later.</h2>
+    <% else %>
+      <% @posts.each do |post| %>
+        <%= content_tag :tr, id: dom_id(post), class: dom_class(post) do %>
+          <div class="w-full lg:w-1/3 px-4 mb-8 lg:mb-8">
+            <div class="h-full pb-8 mt-5 rounded shadow-md">
+              <a href="<%= post_path(post) %>">
+                <% if post.main_image.attached? %>
+                  <%= image_tag post.main_image, title: "#{post.title}", alt: "#{post.title} by #{post.author}", class: "mb-4" %>
+                <% else %>
+                  <!-- Show nothing -->
+                <% end %>
+                <div class="px-6">
+                  <small>
+                    <%= post.created_at.strftime("%b %d, %Y") %> | <%= t".created_by" %> <%= post.author unless post.author.blank? %>
+                  </small>
+                  <h3 class="text-xl my-3 font-heading">
+                    <%= link_to post.title, post_path(post) %>
+                  </h3>
+                  <p class="text-gray-500">
+                    <%= truncate(strip_tags(post.description.to_s), length:356, escape: false, omission: "... (continued)") %>
+                  </p>
+                </div>
+              </a>
+              <div class="px-4 mb-8 mt-4 lg:mb-0 justify-end">
+                <button>
+                  <%= link_to post_path(post), class: "bg-transparent hover:shadow border border-gray-500 hover:border-teal-500 hover:no-underline text-xs text-gray-500 hover:text-teal-500 font-bold py-2 px-4 rounded-full shadow-md", data: {disable_with: "Loading..."} do %>
+                    <%= t".read_btn", :default => "Read more »" %>
+                  <% end %>
+                </button>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</section>'
   end
 end
 
@@ -908,14 +926,14 @@ def create_post_new
   FileUtils.touch(post_new)
   append_to_file post_new do
   '<div class="font-sans container mt-10">
-    <div class="w-full content-center flex shadow-lg flex-col bg-cover bg-center bg-white p-6 rounded pt-8 pb-1">
-      <div class="text-center text-grey mb-6">
-        <h1>New Post</h1>
-      </div>
-
-      <%= render "form", post: @post %>
+  <div class="w-full content-center flex shadow-lg flex-col bg-cover bg-center bg-white p-6 rounded pt-8 pb-1">
+    <div class="text-center text-grey mb-6">
+      <h1>New Post</h1>
     </div>
-  </div>'
+
+    <%= render "form", post: @post %>
+  </div>
+</div>'
   end
 end
 
@@ -925,14 +943,14 @@ def create_post_edit
   FileUtils.touch(post_edit)
   append_to_file post_edit do
   '<div class="font-sans container mt-10">
-    <div class="w-full content-center flex shadow-lg flex-col bg-cover bg-center bg-white p-6 rounded pt-8 pb-1">
-      <div class="text-center text-grey mb-6">
-        <h1>Edit Post</h1>
-      </div>
-
-      <%= render "form", post: @post %>
+  <div class="w-full content-center flex shadow-lg flex-col bg-cover bg-center bg-white p-6 rounded pt-8 pb-1">
+    <div class="text-center text-grey mb-6">
+      <h1>Edit Post</h1>
     </div>
-  </div>'
+
+    <%= render "form", post: @post %>
+  </div>
+</div>'
   end
 end
 
@@ -942,18 +960,18 @@ def add_mailer
 
   append_to_file contact do
   'class ContactMailer < ApplicationMailer
-    def contact_me(message)
-      @name = message.name
-      @email = message.email
-      @sent_on = Time.now
-      @subject = message.subject
-      @body = message.body
-      @url  = "https://your-app-url.com/"
-      @greeting = "Hello!"
+  def contact_me(message)
+    @name = message.name
+    @email = message.email
+    @sent_on = Time.now
+    @subject = message.subject
+    @body = message.body
+    @url  = "https://your-app-url.com/"
+    @greeting = "Hello!"
 
-      mail to: "no-reply@example.com", from: message.email
-    end
-  end'
+    mail to: "no-reply@example.com", from: message.email
+  end
+end'
   end
 end
 
@@ -1013,6 +1031,7 @@ end
 # Main setup
 source_paths
 
+say 'Applying gems...'
 add_gems
 
 after_bundle do
@@ -1023,8 +1042,8 @@ after_bundle do
   add_assets
   add_webpack
   add_features
-  add_javascript
   copy_templates
+  add_javascript
   copy_postcss_config
   add_tailwind
   remove_app_css

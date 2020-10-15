@@ -1,0 +1,34 @@
+en:
+  devise:
+    failure:
+      invited: "Sinulla on odottava kutsu, hyväksy se tilisi luomisen lopettamiseksi."
+    invitations:
+      send_instructions: "An invitation email has been sent to %{email}."
+      invitation_token_invalid: "The invitation token provided is not valid!"
+      updated: "Salasanasi on asetettu onnistuneesti. Olet nyt kirjautunut sisään."
+      updated_not_active: "Salasanasi on asetettu onnistuneesti."
+      no_invitations_remaining: "Ei kutsuja jäljellä"
+      invitation_removed: "Kutsusi poistettiin."
+      new:
+        header: "Lähetä kutsu"
+        submit_button: "Lähetä kutsu"
+      edit:
+        header: "Aseta salasanasi"
+        new_password: Uusi salasana
+        confirm_new_password: Vahvista uusi salasana
+        char_mini: merkkejä vähintään
+        submit_button: "Aseta salasanani"
+    mailer:
+      invitation_instructions:
+        subject: "Kutsuohjeet"
+        hello: "Hei %{email}"
+        someone_invited_you: "Joku on kutsunut sinut %{url}, voit hyväksyä sen alla olevan linkin kautta."
+        accept: "Hyväksy kutsu"
+        accept_until: "Tämä kutsu erääntyy %{due_date}."
+        ignore: "Jos et halua hyväksyä kutsua, ohita tämä sähköpostiosoite. Tiliäsi ei luoda, ennen kuin olet käyttänyt yllä olevaa linkkiä ja asettanut salasanasi."
+  time:
+    formats:
+      devise:
+        mailer:
+          invitation_instructions:
+            accept_until_format: "%B %d, %Y %I:%M %p"

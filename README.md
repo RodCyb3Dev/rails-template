@@ -41,7 +41,7 @@ You'll need the following installed to run the template successfully:
 1. Create your application from the template.
 
 ```bash
-rails new app-name -d postgresql -m https://raw.githubusercontent.com/Rodcode47/kodeflash-Rails-template/master/template.rb
+rails new sample-app -d postgresql -m https://raw.githubusercontent.com/Rodcode47/kodeflash-Rails-template/master/template.rb
 ```
 
 ⚠ If for some reason the URL above fails, we recommend you have downloaded this repo, you can reference template.rb locally by:
@@ -52,7 +52,7 @@ rails new app-name -d postgresql -m https://raw.githubusercontent.com/Rodcode47/
 2. Initialize your New App by using:
 
 ```bash
-rails new feeniks -d postgresql -m template.rb
+rails new sample-app -d postgresql -m template.rb
 ```
 
 3. cd #{app_name} - into your new app's directory.
