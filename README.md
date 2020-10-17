@@ -57,7 +57,7 @@ rails new sample-app -d postgresql -m template.rb
 
 3. **cd #{app_name} - into your new app's directory.**
 
-### ⚠ Important: Before running "rails db:migrate" you must make changes by:
+⚠ Important: Before running "rails db:migrate" you must make changes by:
 
 - Uncomment in `'db/migrate/*_devise_create_users.rb'` on **## Trackable**, **## Confirmable**, and **## Lockable**.
 
@@ -96,27 +96,47 @@ t.string   :unconfirmed_email # Only if using reconfirmable
 t.integer  :failed_attempts, default: 0, null: false # Only if lock strategy is :failed_attempts
 t.string   :unlock_token # Only if unlock strategy is :email or :both
 t.datetime :locked_at
+
+## Lockable
+t.integer  :failed_attempts, default: 0, null: false # Only if lock strategy is :failed_attempts
+t.string   :unlock_token # Only if unlock strategy is :email or :both
+t.datetime :locked_at
 ```
 
 - Next with all the changes made as mentioned above run `rails db:migrate`
 - Then initialize your app by using: `$ rails server` or `$ rails s`
 - After that, head to your browser and type: `127.0.0.1:3000 or localhost:3000`
 
+======
+
 ⚠ If the app fails due to **Segmentation fault**? try running `$ rails server` again and if this persist Try adding `DISABLE_SPRING=1` before `rails new`. Spring will get confused if you create an app with the same name twice.
 
-4. **So to give the first User admin privileges you can do:**
+======
 
-- Create User via the registration form.
-  Now that the user is registered lets change attributes to `admin: true` & `role: admin` so to do this:
+4. **Application is running great! and I registered a User**
+
+- Now that the User is registered you can give admin privileges by changing attributes to `admin: true` & `role: admin`, to do this:
 - Open terminal within your application dir run: rails c
-  Check if user or users exists:
-- User.all
-- User.first
-  Make attributes changes:
-- User.last.update!(admin: true)
-- User.last.update!(role: "admin")
-  To delete the user:
-- User.last.destroy!
+
+```ruby
+# Check if user or users exists:
+User.all
+# Or
+User.first
+
+# Make attributes changes:
+User.last.update!(admin: true)
+User.last.update!(role: "admin")
+
+# To delete the user:
+User.last.destroy!
+```
+
+- Ctrl + D to exit
+
+Okay, if you refresh the application and click user icon from navbar you should now see Admin dashboard & invite.
+
+- Now that there is an admin User in the future this admin can simply use the Admin dashboard to change privileges under User section.
 
 ### Once installed what do I get?
 
