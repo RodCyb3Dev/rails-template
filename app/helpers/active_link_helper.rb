@@ -1,4 +1,4 @@
-module SetActiveLinkHelper
+module ActiveLinkHelper
   # Just this works
   def activelink_class(name)
     controller_name.eql?(name) || current_page?(name) ? 'activelink' : ''

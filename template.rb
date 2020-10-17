@@ -71,7 +71,7 @@ def add_gems
   gem 'sidekiq'
   gem 'sitemap_generator'
   gem 'whenever', require: false
-  gem 'IPinfo'
+  #gem 'IPinfo'
   gem 'friendly_id', '~> 5.4.0'
   #gem 'pdfjs_viewer-rails'
   gem 'sassc-rails'
@@ -190,6 +190,12 @@ def add_users
     gsub_file migration, /:admin/, ":admin, :default => false"
   end
 
+  generate "migration add_index_to_users_email"
+index_migration_array = Dir['db/migrate/*_add_index_to_users_email.rb']
+index_migration_file = index_migration_array.first
+in_root { insert_into_file index_migration_file, 
+  "\n    add_index :users, :email, unique: true", after: "change" }
+
   if Gem::Requirement.new("> 5.2").satisfied_by? rails_version
     gsub_file "config/initializers/devise.rb",
       /  # config.secret_key = .+/,
@@ -203,7 +209,7 @@ def add_users
 
   inject_into_file 'app/models/user.rb', before: 'end' do
   "\n  attr_accessor :login
-  enum role: [:user, :admin, :vip] # You can call your roles whatever you want. User will be 1, Admin will be 2, and VIP will be 3.
+  enum role: [:user, :admin, :vip] # You can call your roles anything.
   after_initialize :set_default_role, :if => :new_record?
 
   def self.find_for_database_authentication warden_condition
@@ -229,17 +235,18 @@ def add_users
 
   # For friendly_id use
   def uniqueslug
-    # Add here
   end
 
   # Add validations for the first and last name length
   validates :first_name, presence: true,
-  length: { minimum: 2, maximum: 25 }
+  length: { minimum: 4, maximum: 25 }
 
   validates :last_name, presence: true,
-  length: { minimum: 2, maximum: 25 }
+  length: { minimum: 4, maximum: 25 }
 
-=begin
+  validates :username, presence: true,
+  length: { minimum: 4, maximum: 25 }
+
   # Now let’s add some password requirements:
   validate :password_complexity
 
@@ -248,11 +255,11 @@ def add_users
       errors.add :password, 'must include at 8 characters in total, one digit, one lower case letter, one uppercase letter, one non-character (such as !,#,%,@, etc), and no space.'
     end
   end
-=end
 
+  # User avatar url
   def avatar_url
     hash = Digest::MD5.hexdigest(email)
-    'http://www.gravatar.com/avatar/#{hash}'
+    #http://www.gravatar.com/avatar/#{hash}
   end\n"
   end
   
@@ -293,7 +300,7 @@ def add_users
 
   ## development.rb
   inject_into_file 'config/environments/development.rb', after: 'Rails.application.configure do' do
-    "\nconfig.action_mailer.default_url_options = { host: 'localhost', port: 3000 }"
+    "\n  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }"
   end
 
   insert_into_file 'config/environments/development.rb', after: /config\.action_mailer\.raise_delivery_errors = false\n/ do
@@ -341,6 +348,13 @@ def add_users
   config.assets.js_compressor = Uglifier.new(:harmony => true)
   RUBY
   end
+
+  find_and_replace_in_file('config/environments/development.rb', '# config.file_watcher = ActiveSupport::EventedFileUpdateChecker', 'config.file_watcher = ActiveSupport::EventedFileUpdateChecker')
+end
+
+# Replace Unique_slug
+def add_user_avatar_url
+  find_and_replace_in_file('app/models/user.rb', '# Add gravatar url', '"http://www.gravatar.com/avatar/#{hash}"')
 end
 
 def find_and_replace_in_file(file_name, old_content, new_content)
@@ -474,11 +488,20 @@ def add_tailwind
   append_to_file 'app/javascript/packs/application.js', "\nrequire('packs/utils/custom.js')\n"
   append_to_file 'app/javascript/packs/application.js', "import '../stylesheets/application'\n"
   append_to_file 'app/javascript/packs/application.js', "import './utils/direct_uploads'\n"
-  append_to_file 'app/javascript/packs/application.js', "import './utils/jquery_lazyload'\n"
-  append_to_file 'app/javascript/packs/application.js', "import './utils/smooth_page_scrolling'\n"
   append_to_file 'app/javascript/packs/application.js', "import './utils/rails_admin/custom/ui'\n"
-  append_to_file 'app/javascript/packs/application.js', "import CookiesEuBanner from 'cookies-eu-banner'\n"
   append_to_file 'app/javascript/packs/application.js', "import './utils/cookies_eu'\n"
+
+  content = <<-JS
+require("local-time").start()
+
+window.Rails = Rails
+
+$(document).on("turbolinks:load", () => {
+  $('[data-toggle="tooltip"]').tooltip()
+  $('[data-toggle="popover"]').popover()
+})
+  JS
+  insert_into_file 'app/javascript/packs/application.js', "\n#{content}", after: 'require("channels")'
 =begin
   inject_into_file("./postcss.config.js",
   "let tailwindcss = require('tailwindcss');\n", before: "module.exports")
@@ -559,12 +582,14 @@ def add_sidekiq
 end
 
 # Handling error pages
-insert_into_file 'config/application.rb', before: /^  end/ do
-  <<-RUBY
-  # Uncomment this for errors to work
-  #require Rails.root.join('lib/custom_public_exceptions')
-  #config.exceptions_app = CustomPublicExceptions.new(Rails.public_path)
+def add_error_handler
+  content = <<-RUBY
+    # Uncomment this for errors to work
+    #require Rails.root.join('lib/custom_public_exceptions')
+    #config.exceptions_app = CustomPublicExceptions.new(Rails.public_path)
+    config.eager_load_paths << "#{Rails.root}/lib"
   RUBY
+  insert_into_file "config/application.rb", "#{content}\n\n", after: "# the framework and any gems in your application.\n"
 end
 
 =begin
@@ -577,6 +602,7 @@ def add_cookies_eu
   run "bundle exec rails g cookies_eu:install"
 end
 
+# Not added
 def add_errors
   # Error handling links
   insert_into_file "config/routes.rb", before: /^  end/ do
@@ -636,45 +662,47 @@ def add_change_in_friendly_id
 end
 
 def add_demo_post
-  rails_command 'g scaffold post title:string author:string --no-scaffold-stylesheet' #user:references Or user_id:integer
-  generate "migration AddSlugToPosts slug:string:uniq"
+  rails_command 'g scaffold post title:string author:string user_id:integer --no-scaffold-stylesheet'
+  generate "migration AddSlugToPosts slug:string:uniq" #user:references Or user_id:integer
+  #generate "migration AddUserRefToPosts user:references"
 
   # Post Model
   inject_into_file 'app/models/post.rb', after: 'class Post < ApplicationRecord' do
-  "\n  require 'faker'\n
+  '\n  require "faker"\n
   extend FriendlyId
   friendly_id :title, use: :slugged
   
   has_rich_text :description
-  #belongs_to :user
+  belongs_to :user
 
   has_one_attached :main_image
 
   validates_presence_of :title, :description, :author
   #validates :description, presence: true, length: {minimum: 50, maximum: 10320 }
   validates_length_of :description, within: 50..10320
+  validates :user_id, presence: true
 
   def self.recent
-    #order('created_at DESC')
-    order('updated_at DESC')
+    #order("created_at DESC")
+    order("updated_at DESC")
   end
 
   def avatar_url
     hash = Digest::MD5.hexdigest(email)
-    'http://www.gravatar.com/avatar/#{hash}'
+    "http://www.gravatar.com/avatar/#{hash}"
   end
 
   def previous
-    Post.where(['id < ?', id]).last
+    Post.where(["id < ?", id]).last
   end
 
   def next
-    Post.where(['id > ?', id]).first
+    Post.where(["id > ?", id]).first
   end
 
   def rand_time(from, to=Time.now)
     Time.at(rand_in_range(from.to_f, to.to_f))
-  end\n"
+  end\n'
   end
 
   # Posts Controller
@@ -685,7 +713,7 @@ def add_demo_post
   )
   find_and_replace_in_file(
     'app/controllers/posts_controller.rb', 
-    'params.require(:post).permit(:title)', 
+    'params.require(:post).permit(:title, :author, :user_id)', 
     'params.require(:post).permit(:title, :author, :main_image, :description, :user_id, :slug)' #:user_id,
   )
 
@@ -696,32 +724,56 @@ def add_demo_post
   )
 
   inject_into_file 'app/controllers/posts_controller.rb', after: "before_action :set_post, only: [:show, :edit, :update, :destroy]" do
-    "\nbefore_action :authenticate_user!, except: [:show, :index]"
+   "\n   before_action :authenticate_user!, except: [:show, :index]"
   end
 
   inject_into_file 'app/controllers/posts_controller.rb', after: "@posts = Post.all" do
-    "\n\n  # Meta Tags & dynamic page title
+   "\n     @pagy, @posts = pagy(Post.recent, items: 3)\n
+    # Meta Tags & dynamic page title
     @page_title = t('post_page')"
   end
 
+  find_and_replace_in_file(
+    'app/controllers/posts_controller.rb', 
+    '@posts = Post.all', 
+    '#@posts = Post.all'
+  )
+
   inject_into_file 'app/controllers/posts_controller.rb', after: "def show" do
-    "\n   # Meta Tags & dynamic page title
+    "\n    # Meta Tags & dynamic page title
     @page_title = @post.title
     @page_description = @post.description
     @page_keywords = @post.description"
   end
+
+  inject_into_file 'app/controllers/posts_controller.rb', after: "@post = Post.new(post_params)" do
+   "\n     @post.user = User.first"
+  end
 end
 
 def changes_to_cable
-  inject_into_file 'config/cable.yml', after: "development:" do
-    "\n adapter: async"
+  # Remove initial cable.yml file
+  remove_file "config/cable.yml"
+
+  # Create new cable.yml file
+  cable_redis = 'config/cable.yml'
+  FileUtils.touch(cable_redis)
+  append_to_file cable_redis do
+  'development:
+  adapter: async
+  #adapter: redis
+  #url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>
+  #channel_prefix: streaming_logs_dev
+
+test:
+  adapter: test
+  #adapter: async
+
+production:
+  adapter: redis
+  url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>
+  channel_prefix: streaming_logs_production'
   end
-  inject_into_file 'config/cable.yml', after: "test:" do
-    "\n adapter: test"
-  end
-  find_and_replace_in_file('config/cable.yml', 'adapter: redis', '#adapter: redis')
-  find_and_replace_in_file('config/cable.yml', 'url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>', '#url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>')
-  find_and_replace_in_file('config/cable.yml', 'channel_prefix: streaming_logs_dev', '#channel_prefix: streaming_logs_dev')
 end
 
 def remove_post_form_and_show
@@ -881,9 +933,9 @@ def create_post_show
       
       <!-- root_admin_user.first_name -->
       <div class="flex-1">
-        <%= link_to t(".follow_btn", :default => "Follow"), new_user_session_path, class: "bg-transparent hover:shadow border border-gray-500 hover:border-teal-500 hover:no-underline text-xs text-gray-500 hover:text-teal-500 font-bold py-2 px-4 mb-3 rounded-full" if @current_user.nil? %>
+        <%#= link_to t(".follow_btn", :default => "Follow"), new_user_session_path, class: "bg-transparent hover:shadow border border-gray-500 hover:border-teal-500 hover:no-underline text-xs text-gray-500 hover:text-teal-500 font-bold py-2 px-4 mb-3 rounded-full" if @current_user.nil? %>
         <p class="text-sm leading-none mt-3">
-          <%= t".created_by" %> <b><%= @post.author unless @post.author.blank? %></b>
+          <%= t".created_by" %> <b><%= @post.author unless @post.author.blank? %></b> | User name: <%= @post.user.name unless @post.user.name.blank? %>
         </p>
       </div>
       <div class="justify-end">
@@ -912,65 +964,87 @@ def create_post_index
   FileUtils.touch(post_index)
   append_to_file post_index do
   '<!--Posts Container-->
-<div class="container flex flex-wrap justify-between" style="margin-top: 2rem;">
-  <div class="text-center container">
-    <h2 class="font-bold break-normal text-3xl md:text-5xl"><u><%=t ".page_title" %></u></h2>
-    <p class="lead post-description"><%=t ".post_discrip" %></p>
-  </div>
-  
-  <%# if user_signed_in? && current_user %>
-  <%# if user_signed_in? %>
-  <% if admin? %>
-    <div class="flex flex-col flex-grow flex-shrink w-full">
-      <%= link_to new_post_path, class: "block w-full text-center py-2 rounded shadow-md bg-green-400 text-white hover:bg-green-600 focus:outline-none my-1 hover:no-underline" do %>
-        <i class="pencil alternate icon"></i> 
-        Add New Post
-      <% end %>
+  <div class="container flex flex-wrap justify-between" style="margin-top: 2rem;">
+    <div class="text-center container">
+      <h2 class="font-bold break-normal text-3xl md:text-5xl"><u><%=t ".page_title" %></u></h2>
+      <p class="lead post-description"><%=t ".post_discrip" %></p>
     </div>
-  <% end %>
-</div>
+    
+    <%# if user_signed_in? && current_user %>
+    <%# if user_signed_in? %>
+    <% if admin? %>
+      <div class="flex flex-col flex-grow flex-shrink w-full">
+        <%= link_to new_post_path, class: "block w-full text-center py-2 rounded shadow-md bg-green-400 text-white hover:bg-green-600 focus:outline-none my-1 hover:no-underline" do %>
+          <i class="pencil alternate icon"></i> 
+          Add New Post
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 
-<section class="py-12 px-4">
-  <div class="flex flex-wrap -mx-4">
-    <% if @posts.count == 0 %>
-      <h2 class="text-center text-yellow-600 font-serif"> There are no <b>Posts</b> yet! we will publish soon. <br> Please check back later.</h2>
-    <% else %>
-      <% @posts.each do |post| %>
-        <%= content_tag :tr, id: dom_id(post), class: dom_class(post) do %>
-          <div class="w-full lg:w-1/3 px-4 mb-8 lg:mb-8">
-            <div class="h-full pb-8 mt-5 rounded shadow-md">
-              <a href="<%= post_path(post) %>">
+  <section class="py-12 px-4">
+    <div class="flex flex-wrap -mx-4">
+      <% if @posts.count == 0 %>
+        <div class="text-center container">
+          <h2 class="text-center text-2xl text-yellow-600 font-serif"> 
+            <b>Oops!</b> there are no <b>Blogs</b> yet, we will publish soon. <br> Please check back later.
+          </h2>
+        </div>
+      <% else %>
+        <% @posts.each do |post| %>
+          <%= content_tag :tr, id: dom_id(post), class: dom_class(post) do %>
+            <div class="w-full lg:w-1/3 px-4 mb-8 lg:mb-8">
+              <div class="h-full pb-8 mt-5 rounded shadow-md">
                 <% if post.main_image.attached? %>
-                  <%= image_tag post.main_image, title: "#{post.title}", alt: "#{post.title} by #{post.author}", class: "mb-4" %>
+                  <%= link_to image_tag(post.main_image, title: "#{post.title.html_safe}", alt: "#{post.title} by #{post.user.name}", class: "hover07 mb-4"), post %>
                 <% else %>
                   <!-- Show nothing -->
+                  <%= image_tag("placeholders/pictures/office.jpg", alt: "office", class: "mb-4") %>
                 <% end %>
-                <div class="px-6">
+                <div class="px-5">
                   <small>
-                    <%= post.created_at.strftime("%b %d, %Y") %> | <%= t".created_by" %> <%= post.author unless post.author.blank? %>
+                    <%#= time_ago_in_words(article.created_at) %>
+                    <span class="text-teal-600 font-medium text-base">
+                      <%= t".post_published" %>
+                    </span> 
+                    <%= icon("far", "calendar") %> 
+                    <%= post.created_at.strftime("%b %d, %Y") %> | 
+                    <span class="text-yellow-600 font-medium text-base">
+                      <%= t".post_updated" %>
+                    </span> 
+                    <%= icon("far", "clock") %> 
+                    <%= time_ago_in_words(post.updated_at) %> <%= t".post_time" %>,
+
+                    <span class="text-blue-600 sm:text-green-600 text-base">
+                      <%= t".created_by" %> 
+                    </span>
+                    <span class="text-sm">
+                      <%= post.user.name unless post.user.name.blank? %>
+                    </span>
+                    <%#= post.user.name if post.user.name %>
                   </small>
                   <h3 class="text-xl my-3 font-heading">
                     <%= link_to post.title, post_path(post) %>
                   </h3>
                   <p class="text-gray-500">
-                    <%= truncate(strip_tags(post.description.to_s), length:356, escape: false, omission: "... (continued)") %>
+                    <%= truncate(strip_tags(post.description.to_s), length:256, escape: false, omission: "... (continued)") %>
                   </p>
                 </div>
-              </a>
-              <div class="px-4 mb-8 mt-4 lg:mb-0 justify-end">
-                <button>
-                  <%= link_to post_path(post), class: "bg-transparent hover:shadow border border-gray-500 hover:border-teal-500 hover:no-underline text-xs text-gray-500 hover:text-teal-500 font-bold py-2 px-4 rounded-full shadow-md", data: {disable_with: "Loading..."} do %>
-                    <%= t".read_btn", :default => "Read more »" %>
-                  <% end %>
-                </button>
+                <div class="px-4 mb-8 mt-4 lg:mb-0 justify-end">
+                  <button>
+                    <%= link_to post_path(post), class: "bg-transparent hover:shadow border border-gray-500 hover:border-teal-500 hover:no-underline text-xs text-gray-500 hover:text-teal-500 font-bold py-2 px-4 rounded-full shadow-md", data: {disable_with: "Loading..."} do %>
+                      <%= t".read_btn", :default => "Read more »" %>
+                    <% end %>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          <% end %>
         <% end %>
       <% end %>
-    <% end %>
-  </div>
-</section>'
+    </div>
+    <%== pagy_foundation_nav(@pagy).html_safe %>
+  </section>'
   end
 end
 
@@ -1058,17 +1132,21 @@ def add_pdfjs
 
   gem 'pdfjs_viewer-rails'
   inject_into_file 'config/routes.rb', after: "mount ActionCable.server => '/cable'\n" do <<-EOF
-    mount PdfjsViewer::Rails::Engine => "/pdfjs", as: 'pdfjs'
+  mount PdfjsViewer::Rails::Engine => "/pdfjs", as: 'pdfjs'
   EOF
   end
 end
 
 def add_unique_slug
   # Unique_slug
-  inject_into_file 'app/models/user.rb', after: "def uniqueslug\n" do <<-EOF
-    '#{first_name}-#{last_name}'
-  EOF
-  end
+  content = <<-RUBY
+    # Add here
+  RUBY
+  insert_into_file "app/models/user.rb", "#{content}", after: "def uniqueslug\n"
+end
+
+def add_unique_names
+  find_and_replace_in_file('app/models/user.rb', "# Add here", '"#{first_name}-#{last_name}"')
 end
 
 def add_rails_admin
@@ -1077,7 +1155,7 @@ def add_rails_admin
 
   # Rails_admin theme
   inject_into_file 'config/application.rb', after: "# you've limited to :test, :development, or :production.\n" do <<-EOF
-    ENV['RAILS_ADMIN_THEME'] = 'rollincode'
+  ENV['RAILS_ADMIN_THEME'] = 'rollincode'
   EOF
   end
 end
@@ -1124,6 +1202,12 @@ after_bundle do
   add_sitemap
   add_form_friendlier_errors
   add_pdfjs
+  add_action_text
+  add_letter_opener
+  add_user_avatar_url
+  add_unique_slug
+  add_unique_names
+  add_rails_admin
 
   say 'Almost done! Now init `git` and `database`...'
   # Migrate
@@ -1131,10 +1215,6 @@ after_bundle do
   #rails_command "db:migrate"
 
   # Migrations must be done before this
-  add_action_text
-  add_letter_opener
-  #add_unique_slug
-  add_rails_admin
 
   # Commit everything to git
   git :init
@@ -1142,19 +1222,20 @@ after_bundle do
   git commit: '-m "init rails with rails-template"'
 
   say
-  say "#{app_name} Build successfully! 👍", :blue
-  say
-  say "⚠  Attention: Please add `first_name last_name` code in README.md file - On `def uniqueslug` in `app/models/user.rb`.", :red
+  say "Hey 👋 your #{app_name} has Built Successfully! 👍", :blue
   say
   say "To get started with your new app by typing:", :green
   say "First cd #{app_name} - To switch to your new app's directory."
   say
-  say "⚠  Attention: Before running rails db:migrate open db/migrate/*_devise_create_users.rb and"
-  say "Uncomment line under: ## Trackable, ## Confirmable & ## Lockable for more info read the README.md file", :red
+  say "⚠  Attention: Please check the instructions in README.md file before either run: `rails db:migrate` or `rails s`.", :red
+  say "You must make changes in db/migrate/*_devise_create_users.rb by", :blue
+  say "Uncomment lines under: ## Trackable, ## Confirmable & ## Lockable for devise to work smoothly", :yellow
   say "run: rails db:migrate", :green
   say
-  say "Then initialize your app by using:"
-  say "Start `./bin/webpack-dev-server` first then `rails s` to start your rails app...", :green
+  say "Then initialize #{app_name} by using:"
+  say "Running `./bin/webpack-dev-server` first then with another terminal run: `rails s` to start #{app_name} app...", :green
+  say "Or"
+  say "Just run: `rails s` to start #{app_name} app...", :green
   say
   say "After that, head to your browser and type:"
   say "127.0.0.1:3000 or localhost:3000", :green

@@ -1,0 +1,33 @@
+/****************************************
+  Posts Styles
+*****************************************/
+
+
+/* Blur */
+
+.hover06 {
+    -webkit-filter: blur(0);
+    filter: blur(0);
+}
+
+.hover06:hover {
+    -webkit-filter: blur(3px);
+    filter: blur(3px);
+    -webkit-transition: .3s ease-in-out;
+    transition: .3s ease-in-out;
+}
+
+
+/*GrayScale*/
+
+.hover07 {
+    -webkit-filter: grayscale(0);
+    filter: grayscale(0);
+    -webkit-transition: .3s ease-in-out;
+    transition: .3s ease-in-out;
+}
+
+.hover07:hover {
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+}

@@ -31,6 +31,8 @@
   </div>
 
   <div>
-    <%= f.button t('.contact_send', :default => " Send Message"), class: 'inline-block w-full py-4 px-8 leading-none text-white bg-indigo-500 hover:bg-indigo-600 rounded shadow', data: {disable_with: "<i class='fa fa-spinner fa-spin'></i>  Just a moment..." } %>
+    <%= f.button class: 'inline-block w-full py-4 px-8 leading-none text-white bg-indigo-500 hover:bg-indigo-600 rounded shadow', data: {disable_with: "<i class='fa fa-spinner fa-spin'></i>  Just a moment..." } do %>
+    <%= icon('far', 'paper-plane') %> <%= t('.contact_send', :default => " Send Message") %>
+    <% end %>
   </div>
 <% end %>

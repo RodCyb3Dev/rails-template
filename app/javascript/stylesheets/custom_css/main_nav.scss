@@ -1,0 +1,30 @@
+/****************************************
+  Active Navbar Links
+*****************************************/
+
+.activelink {
+    color: rgb(19, 19, 19);
+    border-bottom-color: #fff;
+    background: rgba(255, 255, 255, 0.493);
+    background: -webkit-gradient(linear, left top, left bottombottom, from(#217db3), to(#13755d));
+    background: -moz-linear-gradient(top, #217db3, #13755d);
+    padding: 2px 6px 2px 6px;
+    border: 1px solid #217db3;
+    border-radius: 15px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+    -webkit-transition: all .3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -ms-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
+}
+
+.activelink:hover {
+    color: rgb(19, 19, 19);
+    border-bottom-color: #fff;
+    background: #e9f0fcd2;
+    padding: 2px 6px 2px 6px;
+    border: 1px solid #e0c650;
+    border-radius: 15px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+}

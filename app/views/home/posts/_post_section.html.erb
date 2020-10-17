@@ -2,26 +2,42 @@
   <%= content_tag :tr, id: dom_id(post), class: dom_class(post) do %>
     <div class="w-full lg:w-1/3 px-4 mb-8 lg:mb-0">
       <div class="h-full pb-8 rounded shadow-md">
-        <a href="<%= post_path(post) %>">
-          <% if post.main_image.attached? %>
-            <%= image_tag post.main_image, title: "#{post.title}", alt: "#{post.title} by #{post.author}", class: "mb-4" %>
-          <% else %>
-            <!-- Show placeholder or nothing -->
-            <%= image_tag("placeholders/pictures/office.jpg", alt: "office", class: "mb-4") %>
-          <% end %>
+        <% if post.main_image.attached? %>
+          <%= link_to image_tag(post.main_image, title: "#{post.title.html_safe}", alt: "#{post.title} by #{post.user.name}", class: "hover07 mb-4"), post %>
+        <% else %>
+          <!-- Show nothing -->
+          <%= image_tag("placeholders/pictures/office.jpg", alt: "office", class: "mb-4") %>
+        <% end %>
 
-          <div class="px-6">
-            <small>
-              <%= post.created_at.strftime("%b %d, %Y") %> | <%= t".created_by", :default => "By" %> <%= post.author unless post.author.blank? %>
-            </small>
-            <h3 class="text-xl my-3 font-heading">
-              <%= link_to post.title, post_path(post) %>
-            </h3>
-            <p class="text-gray-500">
-              <%= truncate(strip_tags(post.description.to_s), length:256, escape: false, omission: "... (continued)") %>
-            </p>
-          </div>
-        </a>
+        <div class="px-5">
+          <small>
+            <%#= time_ago_in_words(article.created_at) %>
+            <span class="text-teal-600 font-medium text-base">
+              <%= t".post_published" %>
+            </span> 
+            <%= icon('far', 'calendar') %> 
+            <%= post.created_at.strftime("%b %d, %Y") %> | 
+            <span class="text-yellow-600 font-medium text-base">
+              <%= t".post_updated" %>
+            </span> 
+            <%= icon('far', 'clock') %> 
+            <%= time_ago_in_words(post.updated_at) %> <%= t".post_time" %>,
+
+            <span class="text-blue-600 sm:text-green-600 text-base">
+              <%= t".created_by" %> 
+            </span>
+            <span class="text-sm">
+              <%= post.user.name unless post.user.name.blank? %>
+            </span>
+            <%#= post.user.name if post.user.name %>
+          </small>
+          <h3 class="text-xl my-3 font-heading">
+            <%= link_to post.title, post_path(post) %>
+          </h3>
+          <p class="text-gray-500">
+            <%= truncate(strip_tags(post.description.to_s), length:256, escape: false, omission: "... (continued)") %>
+          </p>
+        </div>
 
         <div class="px-4 mb-8 mt-4 lg:mb-0 justify-end">
           <button>

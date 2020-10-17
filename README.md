@@ -26,7 +26,7 @@ Inspired heavily by [Jumpstart](https://github.com/excid3/jumpstart) from Chris 
 
 Kodeflash is a Rails template will generated with Tailwind CSS by [Rodney H](https://kodeflash.com).
 
-#### 👉 Requirements
+### 👉 Requirements
 
 You'll need the following installed to run the template successfully:
 
@@ -36,9 +36,9 @@ You'll need the following installed to run the template successfully:
 - rails - `gem install rails`
 - Yarn - `npm install yarn` or [Install Yarn](https://yarnpkg.com/en/docs/install)
 
-#### Creating a new app
+### Creating a new app
 
-1. Create your application from the template.
+1. **Create your application from the template.**
 
 ```bash
 rails new sample-app -d postgresql -m https://raw.githubusercontent.com/Rodcode47/kodeflash-Rails-template/master/template.rb
@@ -49,26 +49,15 @@ rails new sample-app -d postgresql -m https://raw.githubusercontent.com/Rodcode4
 - unzip the downloaded file (kodeflash-Rails-template).
 - cd kodeflash-Rails-template
 
-2. Initialize your New App by using:
+2. **Initialize your New App by using:**
 
 ```bash
 rails new sample-app -d postgresql -m template.rb
 ```
 
-3. cd #{app_name} - into your new app's directory.
+3. **cd #{app_name} - into your new app's directory.**
 
-#### ⚠ Attention: Your must make some changes in your new app?
-
-- Add in to file `'app/models/user.rb'`
-
-```ruby
-# For friendly_id use
-def uniqueslug
-  "#{first_name}-#{last_name}" # Add this line!!!
-end
-```
-
-#### ⚠ Important: Before running "rails db:migrate" you must make changes by:
+### ⚠ Important: Before running "rails db:migrate" you must make changes by:
 
 - Uncomment in `'db/migrate/*_devise_create_users.rb'` on **## Trackable**, **## Confirmable**, and **## Lockable**.
 
@@ -109,13 +98,27 @@ t.string   :unlock_token # Only if unlock strategy is :email or :both
 t.datetime :locked_at
 ```
 
-- Now with all the changes made as mentioned above run `rails db:migrate`
-- Then initialize your app by using: `$ rails server`
+- Next with all the changes made as mentioned above run `rails db:migrate`
+- Then initialize your app by using: `$ rails server` or `$ rails s`
 - After that, head to your browser and type: `127.0.0.1:3000 or localhost:3000`
 
 ⚠ If the app fails due to **Segmentation fault**? try running `$ rails server` again and if this persist Try adding `DISABLE_SPRING=1` before `rails new`. Spring will get confused if you create an app with the same name twice.
 
-#### Once installed what do I get?
+4. **So to give the first User admin privileges you can do:**
+
+- Create User via the registration form.
+  Now that the user is registered lets change attributes to `admin: true` & `role: admin` so to do this:
+- Open terminal within your application dir run: rails c
+  Check if user or users exists:
+- User.all
+- User.first
+  Make attributes changes:
+- User.last.update!(admin: true)
+- User.last.update!(role: "admin")
+  To delete the user:
+- User.last.destroy!
+
+### Once installed what do I get?
 
 - Webpack support + Tailwind CSS configured in the `app/javascript` directory.
 - Devise with a new `username`, `name`, `invitation`, `omniauth` field already migrated in. Enhanced views using Tailwind CSS.
@@ -127,7 +130,7 @@ t.datetime :locked_at
 
 * Git initialization out of the box
 
-###### Included gems
+#### Included gems
 
 - [devise](https://github.com/plataformatec/devise)
 - [OmniAuth: multiple-provider authentication](https://rubygems.org/search?utf8=%E2%9C%93&query=omniauth)

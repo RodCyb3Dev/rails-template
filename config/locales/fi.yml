@@ -42,6 +42,15 @@ fi:
     index:
       home_title: "Tervetuloa uuteen Rails-sovellukseesi!"
       learn_more: Lisätietoja
+      post_section_title: viimeisimmät blogit
+    posts:
+      post_section:
+        created_by: "Luonut:"
+        read_btn: "Lue lisää »"
+        post_time: "sitten"
+        created_by: "Luonut:"
+        post_updated: "Päivitys"
+        post_published: "Julkaistu"
 
   #About page
   about:
@@ -74,6 +83,12 @@ fi:
       contact_body: Kirjoita viesti
       contact_send: Lähetä viesti
       contact_note: Anteeksi! Yhteyslomake on käytettävissä kirjautuneille käyttäjille.
+    form:
+      contact_name: Nimi
+      contact_email: Sähköposti
+      contact_subject: Aihe
+      contact_body: Kirjoita viesti
+      contact_send: Lähetä viesti
   #Views/posts
   posts:
     #index.html.erb
@@ -81,6 +96,11 @@ fi:
       page_title: "Blogit"
       post_discrip: "Varo virheitä alla olevassa koodissa; Olen vain osoittanut olevansa oikein, en ole kokeillut sitä."
       previous_page: Edellinen
+      read_btn: "Lue lisää »"
+      post_time: "sitten"
+      created_by: "Luonut:"
+      post_updated: "Päivitys"
+      post_published: "Julkaistu"
     #show.html.erb
     show:
       bloghomelink: "Etusivu"
@@ -90,7 +110,6 @@ fi:
       min_read: Joku lukee
       tipdemolink: "Artikkelin kuva"
       created_by: "Luonut:"
-      post_time: "sitten"
       post_updated: "viimeisin päivitys"
       browse_mo: Selaa Lisää
   #Views/shared/
@@ -101,7 +120,6 @@ fi:
       home_page: Etusivu
       about_nav: "Meistä"
       contact_nav: "Ottaa yhteyttä"
-      contact_title: "Lisätietoja meistä"
       blog_page: Blogit
       privacy_link: "Yksityisyys"
       terms_link: "Ehdot"
@@ -110,329 +128,41 @@ fi:
     #views/shared/_navbar
     navbar:
       brand_name: "App Nimi"
+      home_page: Etusivu
       about_nav: "Meistä"
       contact_nav: "Ottaa yhteyttä"
-      contact_title: "Lisätietoja meistä"
       blog_page: Blogit
       lang_nav: "Valitse kieli"
-      lang_nav_title: "valitse haluamasi kieli sivujen näyttämiseen"
       fi_lang: "Suomi"
-      fi_lang_title: "Vaihda sivuteksti suomeksi"
       en_lang: "Englanti"
-      en_lang_title: "Muuta sivuteksti englanniksi"
-      user_account: "Käyttäjätili"
       nav_greeting: "Hei"
       admin_area: "Admin-kojelauta"
       account_set: "Tilini"
       notice_alart: "ilmoitukset"
-      logout: "Kirjaudu ulos"
       logout_title: "Kirjaudu ulos tililtäsi"
       sign_up: "Rekisteröidy"
       sign_up_title: "Nauti muista palveluista"
       sign_in: "Kirjaudu sisään"
       sign_in_title: "Hanki lisää palveluita"
-
-  faker:
-    invoice:
-      reference:
-        # Source: https://wiki.xmldation.com/support/fk/finnish_reference_number
-        check_digit_method: method_731
-        pattern: '\d{3,19}#'
-    address:
-      city_prefix: [Haap, He, Kau, Oul, Ra, Ni, "No", Ke, La, Or]
-      city_suffix: [sjärvi, kano, ahe, inen, esi, uma, mi, inen, valta, mina]
-      building_number: ["###", "##", "#"]
-      street_suffix: [katu, gatan, ranta]
-      postcode: ["#####"]
-      state:
-        [
-          Turun ja Porin lääni,
-          Uudenmaan ja Hämeen lääni,
-          Pohjanmaan lääni,
-          Viipurin ja Savonlinnan lääni,
-          Käkisalmen lääni,
-          Savonlinnan ja Kymenkartanon lääni,
-          Kymenkartanon ja Savon lääni,
-        ]
-      city:
-        - "#{city_prefix}#{city_suffix}"
-      street_name:
-        - "#{Name.last_name}#{street_suffix}"
-      street_address:
-        - "#{street_name}#{building_number}"
-      default_country: [Suomi]
-
-    name:
-      female_first_name:
-        [
-          Maria,
-          Helena,
-          Anneli,
-          Johanna,
-          Kaarina,
-          Marjatta,
-          Hannele,
-          Kristiina,
-          Liisa,
-          Emilia,
-          Elina,
-          Tuulikki,
-          Annikki,
-          Maarit,
-          Sofia,
-          Susanna,
-          Leena,
-          Katariina,
-          Anna,
-          Marja,
-          Sinikka,
-          Inkeri,
-          Riitta,
-          Kyllikki,
-          Aino,
-          Tuula,
-          Anne,
-          Päivi,
-          Orvokki,
-          Ritva,
-          Tellervo,
-          Maija,
-          Pirjo,
-          Karoliina,
-          Pauliina,
-          Minna,
-          Sari,
-          Irmeli,
-          Eeva,
-          Tiina,
-          Laura,
-          Eveliina,
-          Marika,
-          Elisabet,
-          Tarja,
-          Pirkko,
-          Satu,
-          Anja,
-          Mari,
-          Hanna,
-        ]
-      male_first_name:
-        [
-          Juhani,
-          Olavi,
-          Antero,
-          Tapani,
-          Johannes,
-          Tapio,
-          Mikael,
-          Kalevi,
-          Matti,
-          Pekka,
-          Petteri,
-          Ilmari,
-          Sakari,
-          Matias,
-          Antti,
-          Juha,
-          Heikki,
-          Kristian,
-          Timo,
-          Kari,
-          Mikko,
-          Markus,
-          Jari,
-          Jukka,
-          Kalervo,
-          Markku,
-          Aleksi,
-          Jaakko,
-          Petri,
-          Oskari,
-          Mika,
-          Henrik,
-          Lauri,
-          Erkki,
-          Veikko,
-          Hannu,
-          Seppo,
-          Ville,
-          Ensio,
-          Ari,
-          Janne,
-          Valtteri,
-          Marko,
-          Pentti,
-          Tuomas,
-          Sami,
-          Juho,
-          Eero,
-          Martti,
-          Erik,
-        ]
-      first_name:
-        [
-          Maria,
-          Helena,
-          Anneli,
-          Johanna,
-          Kaarina,
-          Marjatta,
-          Hannele,
-          Kristiina,
-          Liisa,
-          Emilia,
-          Elina,
-          Tuulikki,
-          Annikki,
-          Maarit,
-          Sofia,
-          Susanna,
-          Leena,
-          Katariina,
-          Anna,
-          Marja,
-          Sinikka,
-          Inkeri,
-          Riitta,
-          Kyllikki,
-          Aino,
-          Tuula,
-          Anne,
-          Päivi,
-          Orvokki,
-          Ritva,
-          Tellervo,
-          Maija,
-          Pirjo,
-          Karoliina,
-          Pauliina,
-          Minna,
-          Sari,
-          Irmeli,
-          Eeva,
-          Tiina,
-          Laura,
-          Eveliina,
-          Marika,
-          Elisabet,
-          Tarja,
-          Pirkko,
-          Satu,
-          Anja,
-          Mari,
-          Hanna,
-          Juhani,
-          Olavi,
-          Antero,
-          Tapani,
-          Johannes,
-          Tapio,
-          Mikael,
-          Kalevi,
-          Matti,
-          Pekka,
-          Petteri,
-          Ilmari,
-          Sakari,
-          Matias,
-          Antti,
-          Juha,
-          Heikki,
-          Kristian,
-          Timo,
-          Kari,
-          Mikko,
-          Markus,
-          Jari,
-          Jukka,
-          Kalervo,
-          Markku,
-          Aleksi,
-          Jaakko,
-          Petri,
-          Oskari,
-          Mika,
-          Henrik,
-          Lauri,
-          Erkki,
-          Veikko,
-          Hannu,
-          Seppo,
-          Ville,
-          Ensio,
-          Ari,
-          Janne,
-          Valtteri,
-          Marko,
-          Pentti,
-          Tuomas,
-          Sami,
-          Juho,
-          Eero,
-          Martti,
-          Erik,
-        ]
-      last_name:
-        [
-          Korhonen,
-          Virtanen,
-          Mäkinen,
-          Nieminen,
-          Mäkelä,
-          Hämäläinen,
-          Laine,
-          Heikkinen,
-          Koskinen,
-          Järvinen,
-          Lehtonen,
-          Lehtinen,
-          Saarinen,
-          Salminen,
-          Heinonen,
-          Niemi,
-          Heikkilä,
-          Kinnunen,
-          Salonen,
-          Turunen,
-          Salo,
-          Laitinen,
-          Tuominen,
-          Rantanen,
-          Karjalainen,
-          Jokinen,
-          Mattila,
-          Savolainen,
-          Lahtinen,
-          Ahonen,
-          Ojala,
-          Leppänen,
-          Väisänen,
-          Hiltunen,
-          Kallio,
-          Miettinen,
-          Leinonen,
-          Pitkänen,
-          Aaltonen,
-          Manninen,
-          Hakala,
-          Koivisto,
-          Anttila,
-          Laaksonen,
-          Hirvonen,
-          Räsänen,
-          Lehto,
-          Laakso,
-          Toivonen,
-          Mustonen,
-        ]
-      name:
-        - "#{first_name} #{last_name}"
-      name_with_middle:
-        - "#{first_name} #{last_name} #{last_name}"
-    phone_number:
-      formats: ["##-######", "###-#######"]
-    cell_phone:
-      formats: ["0##-#######"]
+  pagy:
+    nav:
+      prev: "&lsaquo;&nbsp;Edellinen"
+      next: "Seuraava&nbsp;&rsaquo;"
+      gap: "&hellip;"
+    info:
+      single_page:
+        zero: "Ei %{item_name} löydetty"
+        one: "Näytetään <b>1</b> %{item_name}"
+        other: "Näytetään <b>kaikki %{count}</b> %{item_name}"
+      multiple_pages: "Näytetään %{item_name} <b>%{from}-%{to}</b> joita on yhteensä <b>%{count}</b>"
+      item_name:
+        zero: "items"
+        one: "item"
+        other: "items"
+    compact: "Sivu %{page_input} of %{pages}"
+    items:
+      one: "Näytä %{items_input} kohde sivua kohden"
+      other: "Näytä %{items_input} kohteita sivua kohden"
   date:
     abbr_day_names:
       - su

@@ -43,6 +43,15 @@ en:
     index:
       home_title: "Welcome to your new Rails app!"
       learn_more: Learn more
+      post_section_title: Latest posts
+    posts:
+      post_section:
+        created_by: "Created by:"
+        read_btn: "Read more »"
+        created_by: "by:"
+        post_updated: "Updated:"
+        post_published: "Published:"
+
   #About page
   about:
     about_file_badge_new: New
@@ -51,8 +60,8 @@ en:
     preview_btn: "Preview file."
     tip_download_pdf: "How to download file"
     download_pdf: "Download file"
-    tip_view_1: "Preview CV in English"
-    tip_view_2: "Preview CV in Finnish"
+    tip_view_1: "Preview file in English"
+    tip_view_2: "Preview file in Finnish"
     or_text: "or"
     view_pdf: "Preview file."
   #Contact Page
@@ -68,31 +77,34 @@ en:
       msg: "message"
       bye: "Bye"
       formnote: "Get in Touch!"
+      contact_note: Sorry! Contact Form is only available to logged in users.
+    form:
       contact_name: Name
       contact_email: Email
       contact_subject: Subject
       contact_body: Write your message
       contact_send: "Send Your Message"
-      contact_note: Sorry! Contact Form is only available to logged in users.
   #Views/Posts
   posts:
     #index.html.erb
     index:
-      page_title: "Your Posts"
+      page_title: "Your Blogs"
       post_discrip: "Beware of bugs in the below code; I have only proved it correct, not tried it."
       previous_page: Previous
+      read_btn: "Read more »"
+      post_time: "ago"
+      created_by: "by:"
+      post_updated: "Updated:"
+      post_published: "Published:"
     #show.html.erb
     show:
       post_home_link: "Home"
-      created_by: "Created by:"
-      post_time: "ago"
-      post_updated: "Last updated:"
+      created_by: "by:"
+      post_updated: "Updated:"
       min_read: Someone read
-      go_back: "Go Back"
-      back_link: "Back To All"
-      browse_mo: Browse More
-      post_bugdiv: "“Talk is cheap. Show me the code.”"
-      tipdemolink: "Post image"
+      go_back: "Go back"
+      back_link: "Back to all"
+      browse_mo: "Browse more »"
   #Views/shared/
   shared:
     #views/shared/_Footer
@@ -109,26 +121,41 @@ en:
     #views/shared/_navbar
     navbar:
       brand_name: "App Name"
+      home_page: Home
       about_nav: "About"
       contact_nav: "Contact"
-      contact_title: "Find out more about us."
       blog_page: "Blog"
       lang_nav: "Select Language"
       fi_lang: "Finnish"
       en_lang: "English"
-      blogs_news: "Whats New"
-      blogs_news_title: "Announcements here"
       nav_greeting: "Hello"
       admin_area: "Admin Dashboard"
       account_set: "My account"
-      notice_alart: "Notifications"
       logout: "Sign out"
       logout_title: "Sign Out your Account."
       sign_up: "Sing up"
       sign_up_title: "Enjoy other services."
       sign_in: "Sign in"
       sign_in_title: "Get more services."
-
+  pagy:
+    nav:
+      prev: "&lsaquo;&nbsp;Prev"
+      next: "Next&nbsp;&rsaquo;"
+      gap: "&hellip;"
+    info:
+      single_page:
+        zero: "No %{item_name} found"
+        one: "Displaying <b>1</b> %{item_name}"
+        other: "Displaying <b>all %{count}</b> %{item_name}"
+      multiple_pages: "Displaying %{item_name} <b>%{from}-%{to}</b> of <b>%{count}</b> in total"
+      item_name:
+        zero: "items"
+        one: "item"
+        other: "items"
+    compact: "Page %{page_input} of %{pages}"
+    items:
+      one: "Show %{items_input} item per page"
+      other: "Show %{items_input} items per page"
   date:
     abbr_day_names:
       - Sun
