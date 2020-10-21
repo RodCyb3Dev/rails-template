@@ -3,6 +3,7 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 // Custom SCSS
+@import 'toastr';
 @import "./components/buttons";
 @import "./components/forms";
 $fa-font-path: '~@fortawesome/fontawesome-free/webfonts';

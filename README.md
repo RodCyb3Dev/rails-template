@@ -57,53 +57,6 @@ rails new sample-app -d postgresql -m template.rb
 
 3. **cd #{app_name} - into your new app's directory.**
 
-⚠ Important: Before running "rails db:migrate" you must make changes by:
-
-- Uncomment in `'db/migrate/*_devise_create_users.rb'` on **## Trackable**, **## Confirmable**, and **## Lockable**.
-
-**From**
-
-```ruby
-## Trackable
-# t.integer  :sign_in_count, default: 0, null: false
-# t.datetime :current_sign_in_at
-# t.datetime :last_sign_in_at
-# t.inet     :current_sign_in_ip
-# t.inet     :last_sign_in_ip
-
-## Confirmable
-# t.string   :confirmation_token
-# t.datetime :confirmed_at
-# t.datetime :confirmation_sent_at
-# t.string   :unconfirmed_email # Only if using reconfirmable
-
-## Lockable
-# t.integer  :failed_attempts, default: 0, null: false # Only if lock strategy is :failed_attempts
-# t.string   :unlock_token # Only if unlock strategy is :email or :both
-# t.datetime :locked_at
-```
-
-**To**
-
-```ruby
-## Confirmable
-t.string   :confirmation_token
-t.datetime :confirmed_at
-t.datetime :confirmation_sent_at
-t.string   :unconfirmed_email # Only if using reconfirmable
-
-## Lockable
-t.integer  :failed_attempts, default: 0, null: false # Only if lock strategy is :failed_attempts
-t.string   :unlock_token # Only if unlock strategy is :email or :both
-t.datetime :locked_at
-
-## Lockable
-t.integer  :failed_attempts, default: 0, null: false # Only if lock strategy is :failed_attempts
-t.string   :unlock_token # Only if unlock strategy is :email or :both
-t.datetime :locked_at
-```
-
-- Next with all the changes made as mentioned above run `rails db:migrate`
 - Then initialize your app by using: `$ rails server` or `$ rails s`
 - After that, head to your browser and type: `127.0.0.1:3000 or localhost:3000`
 
@@ -116,7 +69,7 @@ t.datetime :locked_at
 4. **Application is running great! and I registered a User**
 
 - Now that the User is registered you can give admin privileges by changing attributes to `admin: true` & `role: admin`, to do this:
-- Open terminal within your application dir run: rails c
+- Open terminal within your application dir run: `rails c`
 
 ```ruby
 # Check if user or users exists:

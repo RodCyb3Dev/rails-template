@@ -1,3 +1,5 @@
+#frozen_string_literal: true
+
 require "fileutils"
 require "shellwords"
 
@@ -9,22 +11,15 @@ Instructions: $ rails new myapp -d <postgresql, mysql, sqlite> -m template.rb
 =end
 def add_template_repository_to_source_path
   if __FILE__ =~ %r{\Ahttps?://}
-    require "tmpdir"
     source_paths.unshift(tempdir = Dir.mktmpdir("kodeflash-Rails-template-"))
     at_exit { FileUtils.remove_entry(tempdir) }
-    git clone: [
+    git :clone => [
       "--quiet",
-      "https://github.com/Rodcode47/kodeflash-Rails-template.git",
+      "https://github.com/Rodcode47/kodeflash-Rails-template.",
       tempdir
     ].map(&:shellescape).join(" ")
-
-
-    if (branch = __FILE__[%r{kodeflash-Rails-template/(.+)/template.rb}, 1])
-      Dir.chdir(tempdir) { git checkout: branch }
-    end
   else
     source_paths.unshift(File.dirname(__FILE__))
-    #[File.expand_path(File.dirname(__FILE__))]
   end
 end
 
@@ -57,7 +52,7 @@ def add_gems
   gem 'devise_invitable'
   gem 'devise_masquerade'
   gem 'devise-i18n'
-  gem 'devise-tailwindcssed'
+  #gem 'devise-tailwindcssed'
   gem "pundit"
   gem 'font-awesome-sass'
   gem 'gravatar_image_tag', '~> 1.2'
@@ -73,10 +68,8 @@ def add_gems
   gem 'whenever', require: false
   #gem 'IPinfo'
   gem 'friendly_id', '~> 5.4.0'
-  #gem 'pdfjs_viewer-rails'
   gem 'sassc-rails'
   gem 'pagy'
-  gem 'cookies_eu'
   gem 'uglifier'
   gem 'faker', '~> 2.7'
   ### Delivering static images through a CDN
@@ -103,7 +96,6 @@ def add_gems
 
   if rails_5?
     gsub_file "Gemfile", /gem 'sqlite3'/, "gem 'sqlite3'"
-    #gem 'webpacker', '~> 4.0.1'
     gem 'webpacker'
   end
 end
@@ -188,18 +180,21 @@ def add_users
   in_root do
     migration = Dir.glob("db/migrate/*").max_by{ |f| File.mtime(f) }
     gsub_file migration, /:admin/, ":admin, :default => false"
-  end
-
-  generate "migration add_index_to_users_email"
-index_migration_array = Dir['db/migrate/*_add_index_to_users_email.rb']
-index_migration_file = index_migration_array.first
-in_root { insert_into_file index_migration_file, 
-  "\n    add_index :users, :email, unique: true", after: "change" }
-
-  if Gem::Requirement.new("> 5.2").satisfied_by? rails_version
-    gsub_file "config/initializers/devise.rb",
-      /  # config.secret_key = .+/,
-      "  config.secret_key = Rails.application.credentials.secret_key_base"
+    ## Trackable
+    gsub_file migration, /# t.integer  :sign_in_count, default: 0, null: false/, "t.integer  :sign_in_count, default: 0, null: false"
+    gsub_file migration, /# t.datetime :current_sign_in_at/, "t.datetime :current_sign_in_at"
+    gsub_file migration, /# t.datetime :last_sign_in_at/, "t.datetime :last_sign_in_at"
+    gsub_file migration, /# t.inet     :current_sign_in_ip/, "t.inet     :current_sign_in_ip"
+    gsub_file migration, /# t.inet     :last_sign_in_ip/, "t.inet     :last_sign_in_ip"
+    ## Confirmable
+    gsub_file migration, /# t.string   :confirmation_token/, "t.string   :confirmation_token"
+    gsub_file migration, /# t.datetime :confirmed_at/, "t.datetime :confirmed_at"
+    gsub_file migration, /# t.datetime :confirmation_sent_at/, "t.datetime :confirmation_sent_at"
+    gsub_file migration, /# t.string   :unconfirmed_email/, "t.string   :unconfirmed_email"
+    ## Lockable
+    gsub_file migration, /# t.integer  :failed_attempts, default: 0, null: false/, "t.integer  :failed_attempts, default: 0, null: false"
+    gsub_file migration, /# t.string   :unlock_token/, "t.string   :unlock_token"
+    gsub_file migration, /# t.datetime :locked_at/, "t.datetime :locked_at"
   end
 
   # Add Devise masqueradable to users
@@ -225,10 +220,10 @@ in_root { insert_into_file index_migration_file,
     self.role ||= :user
   end
 
-  has_person_name
-  validates_presence_of :name
-
   has_one_attached :avatar
+  has_person_name
+
+  validates_presence_of :name
   has_many :posts, dependent: :destroy
   has_many :user_provider, :dependent => :destroy
   before_save { self.email = email.downcase }
@@ -248,18 +243,21 @@ in_root { insert_into_file index_migration_file,
   length: { minimum: 4, maximum: 25 }
 
   # Now let’s add some password requirements:
+=begin
   validate :password_complexity
 
   def password_complexity
-    if password.present? and not password.match(/\A(?=.{8,})(?=.*\d)(?=.*\W+)(?=.*[a-z])(?=.*[A-Z])(?=.*[[:^alnum:]])/)
-      errors.add :password, 'must include at 8 characters in total, one digit, one lower case letter, one uppercase letter, one non-character (such as !,#,%,@, etc), and no space.'
-    end
+    # Regexp extracted from https://stackoverflow.com/questions/19605150/regex-for-password-must-contain-at-least-eight-characters-at-least-one-number-a
+    return if password.blank? || password =~ /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,70}$/
+
+    errors.add :password, 'Complexity requirement not met. Length should be 8-70 characters and include: 1 uppercase, 1 lowercase, 1 digit and 1 special character'
   end
+=end
 
   # User avatar url
   def avatar_url
     hash = Digest::MD5.hexdigest(email)
-    #http://www.gravatar.com/avatar/#{hash}
+    # Add gravatar url
   end\n"
   end
   
@@ -384,25 +382,40 @@ def add_assets
   end
 end
 
-# Not added
-def add_application_js
-  say 'Create & Adding require_* statements...'
+# Add User to seed.rb file
+def add_user_info
+  say 'Appling User info into seeds.rb...'
 
-  FileUtils.mkdir_p('app/assets/javascripts')
-  app_js = 'app/assets/javascripts/application.js'
-  FileUtils.touch(app_js)
+  content = <<-RUBY
+  require 'faker'
+  
+  user = User.create!(
+    username: 'pirkkajalonen',
+    name: 'Pirkka Jalonen',
+    email: 'pirkkajalonen@jourrapide.com',
+    password: 'Pirkka#1@test',
+    password_confirmation: 'Pirkka#1@test',
+    admin: true,
+    role: 'admin',
+    confirmed_at: Time.now
+  )
+  user.skip_confirmation!
+  user.save!
 
-  append_to_file app_js do
-  '//= require jquery
-  //= require jquery3
-  //= require jquery_ujs
-  //= require moment
-  //= require moment/ja.js
-  //= require bootstrap-datetimepicker
-  //= require turbolinks
-  //= require cookies_eu
-  //= require_tree .'
+  12.times do |post|
+    Post.create!(
+      title: Faker::Lorem.sentence(word_count: 3, supplemental: false, random_words_to_add: 4),
+      seo_text: Faker::Lorem.paragraph_by_chars(number: 80, supplemental: false),
+      description: Faker::Lorem.paragraph(sentence_count: 8, supplemental: false, random_sentences_to_add: 32),
+      user: User.first,
+      views: Faker::Number.between(from: 1, to: 400),
+      status: "published"
+    )
   end
+
+  puts "12 blog posts created"
+  RUBY
+  insert_into_file "db/seeds.rb", "#{content}\n\n", after: "#   Character.create(name: 'Luke', movie: movies.first)\n"
 end
 
 # remove en.yml locale create by rails
@@ -459,7 +472,7 @@ end
 def add_javascript
   say 'Installing javaScript modules via yarn or npm...'
 
-  run "yarn add expose-loader jquery popper.js bootstrap data-confirm-modal local-time @fortawesome/fontawesome-free @fullhuman/postcss-purgecss"
+  run "yarn add expose-loader jquery popper.js bootstrap toastr data-confirm-modal local-time @fortawesome/fontawesome-free @fullhuman/postcss-purgecss"
 
   if rails_5?
     run "yarn add turbolinks @rails/actioncable@pre @rails/actiontext@pre @rails/activestorage@pre @rails/ujs@pre"
@@ -495,6 +508,7 @@ def add_tailwind
 require("local-time").start()
 
 window.Rails = Rails
+global.toastr = require("toastr")
 
 $(document).on("turbolinks:load", () => {
   $('[data-toggle="tooltip"]').tooltip()
@@ -583,12 +597,12 @@ end
 
 # Handling error pages
 def add_error_handler
-  content = <<-RUBY
+  content = <<-CODE
     # Uncomment this for errors to work
     #require Rails.root.join('lib/custom_public_exceptions')
     #config.exceptions_app = CustomPublicExceptions.new(Rails.public_path)
     config.eager_load_paths << "#{Rails.root}/lib"
-  RUBY
+  CODE
   insert_into_file "config/application.rb", "#{content}\n\n", after: "# the framework and any gems in your application.\n"
 end
 
@@ -598,14 +612,10 @@ def add_devise_tailwind
 end
 =end
 
-def add_cookies_eu
-  run "bundle exec rails g cookies_eu:install"
-end
-
 # Not added
 def add_errors
   # Error handling links
-  insert_into_file "config/routes.rb", before: /^  end/ do
+  insert_into_file "config/routes.rb", after: "# For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html\n" do
     <<-RUBY
     ### To use errors handling links, please uncomment
     #route "match '/404', to: 'errors#not_found', via: :all"
@@ -630,6 +640,7 @@ def add_whenever
   run "wheneverize ."
 end
 
+### NOT Used Yet!!!
 def add_custom_fields
   generate "migration addFieldsToUsers terms:boolean location:string"
 
@@ -662,47 +673,76 @@ def add_change_in_friendly_id
 end
 
 def add_demo_post
-  rails_command 'g scaffold post title:string author:string user_id:integer --no-scaffold-stylesheet'
-  generate "migration AddSlugToPosts slug:string:uniq" #user:references Or user_id:integer
+  rails_command 'g scaffold post title:string seo_text:string views:integer status:integer user:references --no-scaffold-stylesheet'
+
+  in_root do
+    migration = Dir.glob("db/migrate/*").max_by{ |f| File.mtime(f) }
+    gsub_file migration, /:views/, ":views, default: 0"
+    gsub_file migration, /:status/, ":status, default: 0"
+  end
+
+  generate "migration AddSlugToPosts slug:string:uniq" 
   #generate "migration AddUserRefToPosts user:references"
 
   # Post Model
-  inject_into_file 'app/models/post.rb', after: 'class Post < ApplicationRecord' do
-  '\n  require "faker"\n
+  inject_into_file 'app/models/post.rb', after: "class Post < ApplicationRecord\n" do
+  "  require 'faker'
   extend FriendlyId
   friendly_id :title, use: :slugged
+  enum status: { draft: 0, published: 1 }
   
-  has_rich_text :description
-  belongs_to :user
-
   has_one_attached :main_image
+  has_rich_text :seo_text
+  has_rich_text :description
+  
+  #belongs_to :user
 
-  validates_presence_of :title, :description, :author
-  #validates :description, presence: true, length: {minimum: 50, maximum: 10320 }
-  validates_length_of :description, within: 50..10320
+  validates_presence_of :title, :description, :seo_text
+  validates :description, presence: true, length: {minimum: 50, maximum: 10320 }
+  validates :seo_text, presence: true, length: {minimum: 50, maximum: 250 }
   validates :user_id, presence: true
 
   def self.recent
-    #order("created_at DESC")
-    order("updated_at DESC")
+    #order('created_at DESC')
+    order('updated_at DESC')
   end
 
   def avatar_url
     hash = Digest::MD5.hexdigest(email)
-    "http://www.gravatar.com/avatar/#{hash}"
+    # Avatar Hash Here!
   end
 
   def previous
-    Post.where(["id < ?", id]).last
+    Post.where(['id < ?', id]).last
   end
 
   def next
-    Post.where(["id > ?", id]).first
+    Post.where(['id > ?', id]).first
   end
 
   def rand_time(from, to=Time.now)
     Time.at(rand_in_range(from.to_f, to.to_f))
-  end\n'
+  end\n"
+  end
+
+  inject_into_file 'app/helpers/posts_helper.rb', after: "module PostsHelper\n" do
+  " def post_status_color post
+    'color: red;' if post.draft?
+  end\n"
+  end
+
+  find_and_replace_in_file(
+    'config/routes.rb', 
+    'resources :posts', 
+    ''
+  )
+
+  inject_into_file 'config/routes.rb', after: "get '/auth/:provider/callback', to: 'sessions#create'\n" do
+  "\n resources :posts do
+    member do
+      get :toggle_status
+    end
+  end\n"
   end
 
   # Posts Controller
@@ -713,8 +753,8 @@ def add_demo_post
   )
   find_and_replace_in_file(
     'app/controllers/posts_controller.rb', 
-    'params.require(:post).permit(:title, :author, :user_id)', 
-    'params.require(:post).permit(:title, :author, :main_image, :description, :user_id, :slug)' #:user_id,
+    'params.require(:post).permit(:title, :seo_text, :views, :status, :user_id)', 
+    'params.require(:post).permit(:title, :main_image, :description, :seo_text, :status, :views, :slug)'
   )
 
   find_and_replace_in_file(
@@ -723,12 +763,24 @@ def add_demo_post
     'format.html { broadcast_errors @post, post_params }'
   )
 
-  inject_into_file 'app/controllers/posts_controller.rb', after: "before_action :set_post, only: [:show, :edit, :update, :destroy]" do
-   "\n   before_action :authenticate_user!, except: [:show, :index]"
-  end
+  find_and_replace_in_file(
+    'app/controllers/posts_controller.rb', 
+    '@posts = Post.all', 
+    '#@posts = Post.all'
+  )
+
+  find_and_replace_in_file(
+    'app/controllers/posts_controller.rb', 
+    'before_action :set_post, only: [:show, :edit, :update, :destroy]', 
+    'before_action :set_post, only: [:show, :edit, :update, :destroy, :toggle_status]'
+  )
 
   inject_into_file 'app/controllers/posts_controller.rb', after: "@posts = Post.all" do
-   "\n     @pagy, @posts = pagy(Post.recent, items: 3)\n
+    "\n    if is_admin?
+      @pagy, @posts = pagy(Post.recent, items: 9)
+    else
+      @pagy, @posts = pagy(Post.recent.published, items: 6)
+    end\n
     # Meta Tags & dynamic page title
     @page_title = t('post_page')"
   end
@@ -740,15 +792,34 @@ def add_demo_post
   )
 
   inject_into_file 'app/controllers/posts_controller.rb', after: "def show" do
-    "\n    # Meta Tags & dynamic page title
+    "\n    views = @post.views + 1
+    @post.update(views: views)\n
+    # Meta Tags & dynamic page title
     @page_title = @post.title
-    @page_description = @post.description
-    @page_keywords = @post.description"
+    @page_description = @post.seo_text
+    @page_keywords = @post.seo_text"
   end
 
   inject_into_file 'app/controllers/posts_controller.rb', after: "@post = Post.new(post_params)" do
-   "\n     @post.user = User.first"
+    "\n    #@post.user = User.first
+    @post.user = current_user"
   end
+
+  inject_into_file 'app/controllers/posts_controller.rb', before: "\nprivate" do
+    "\n  def toggle_status
+    if @post.draft?
+      @post.published!
+    elsif @post.published?
+      @post.draft!
+    end
+      redirect_to posts_url, notice: t('togglealet')
+  end"
+  end
+end
+
+# Add avatar_url
+def add_post_avatar_url
+  find_and_replace_in_file('app/models/user.rb', '# Avatar Hash Here!', '"http://www.gravatar.com/avatar/#{hash}"')
 end
 
 def changes_to_cable
@@ -791,31 +862,41 @@ def create_post_form
   append_to_file post_form do
   '<%= form_with(model: post) do |form| %>
   <div class="-mx-3 md:flex mb-6">
-    <div class="field md:w-1/2 px-3 mb-6 md:mb-0 border shadow-sm p-2">
-      <%= form.label :author %>:<br />
-      <%= form.text_field :author, class: "form-control appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4" %>
-      <%= form.error_for :author %>
+    <div class="field md:w-1/2 px-3 ml-2 mb-6 md:mb-0 border shadow-sm p-2">
+      <%= form.label :title %>
+      <%= form.text_field :title, class: "form-control appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4" %>
+      <%= form.error_for :title, class:"text-red-600" %>
     </div>
 
-    <div class="field md:w-1/2 px-3 ml-2 mb-6 md:mb-0 border shadow-sm p-2">
-      <%= form.label :title %>:<br />
-      <%= form.text_field :title, class: "form-control appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4" %>
-      <%= form.error_for :title, class:"text-danger" %>
+    <div class="field md:w-1/2 px-3 mb-6 md:mb-0 border shadow-sm p-2">
+      <%= form.label :main_image %>
+      <%= form.file_field :main_image, direct_upload: true, class: "form-control appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4" %>
     </div>
   </div>
 
   <div class="-mx-3 md:flex mb-6">
-    <div class="field md:w-1/2 px-3 mb-6 md:mb-0 border shadow-sm p-2">
-      <%= form.label :main_image %>: <br />
-      <%= form.file_field :main_image, direct_upload: true, class: "form-control appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4" %>
+    <div class="field md:w-1/2 px-3 ml-2 mb-6 md:mb-0 border rounded shadow-sm p-2">
+      <div class="md:w-1/2 px-3 mb-6 md:mb-0">
+        <%= form.radio_button :status, "draft", class: "mr-2" %>
+        <%= form.label :status, "Draft", class: "text-pink-600 mr-2" %>
+      </div>
+      <div class="md:w-1/2 px-3">
+        <%= form.radio_button :status, "published", class: "mr-2" %>
+        <%= form.label :status, "Published", class: "text-pink-600" %>
+      </div>
     </div>
+  </div>
+
+  <div class="field form-group">
+    <%= form.label :seo_text %>
+    <%= form.rich_text_area :seo_text, :rows => 6, class: "form-control", placeholder: "Write your story" %>
+    <%= form.error_for :seo_text, class:"text-red-600" %>
   </div>
 
   <div class="field form-group">
     <%= form.label :description %>
     <%= form.rich_text_area :description, class: "form-control", placeholder: "Write your story" %>
-    <%= form.error_for :description %>
-    <%= form.error_for :title, class:"text-red-600" %>
+    <%= form.error_for :description, class:"text-red-600" %>
   </div>
   <br />
 
@@ -846,10 +927,10 @@ def create_post_show
   append_to_file post_show do
   '<% set_meta_tags og: {
   title: @post.title,
-  description: @post.description,
+  description: @post.seo_text,
   type:     "article",
   url:      "posts_url(@post)",
-  image:    "https://onebitcode.com/meu-seo/img.png",
+  image:    "@post.main_image",
 } %>
 <br>
 <!--Container-->
@@ -890,11 +971,21 @@ def create_post_show
     <hr class="border-b border-gray-400">
     <!--image-->
     <div class="container w-full max-w-6xl mx-auto bg-cover mt-4 rounded">
-      <%= image_tag @post.main_image, title: "#{@post.title}", alt: "#{@post.title} by #{@post.author}", style: "h-full w-full object-cover background-image rounded shadow-md", height: "75vh" if @post.main_image.attached? %>
+      <% if @post.main_image.attached? %>
+        <%= image_tag @post.main_image, title: "#{@post.title}", alt: "#{@post.title} by #{@post.user.name}", style: "h-full w-full object-cover background-image rounded shadow-md", height: "75vh" %>
+      <% else %>
+        <%= image_tag("placeholders/pictures/work.jpg", alt: "work", class: "mb-4") %>
+      <% end %>
     </div>
     
     <!--blog Content-->
+    <p hidden class="py-2 ex3 blog-content">
+      <!--SEO Content-->
+      <%= description @post.seo_text %>
+    </p>
+    
     <p class="py-2 ex3 blog-content">
+      <!--Main-->
       <%= @post.description %>
     </p>
     <!--/ blog Content-->
@@ -935,7 +1026,27 @@ def create_post_show
       <div class="flex-1">
         <%#= link_to t(".follow_btn", :default => "Follow"), new_user_session_path, class: "bg-transparent hover:shadow border border-gray-500 hover:border-teal-500 hover:no-underline text-xs text-gray-500 hover:text-teal-500 font-bold py-2 px-4 mb-3 rounded-full" if @current_user.nil? %>
         <p class="text-sm leading-none mt-3">
-          <%= t".created_by" %> <b><%= @post.author unless @post.author.blank? %></b> | User name: <%= @post.user.name unless @post.user.name.blank? %>
+          <%#= time_ago_in_words(article.created_at) %>
+          <span class="text-teal-600 font-medium text-base">
+            <%= t".post_published" %>
+          </span> 
+          <%= icon("far", "calendar") %> 
+          <%= @post.created_at.strftime("%b.%Y") %> | 
+          <span class="text-yellow-600 font-medium text-base">
+            <%= t".post_updated" %>
+          </span> 
+          <%= icon("far", "clock") %> 
+          <%= @post.updated_at.strftime("%d.%m.%Y") %>,
+          <%#= pluralize(@post.views, "View") %>
+        </p>
+        <p class="text-sm leading-none mt-3">
+          <span class="text-blue-600 sm:text-green-600 text-base">
+            <%= t".created_by" %> 
+          </span>
+          <span class="text-sm">
+            <%= @post.user.name unless @post.user.name.blank? %>
+            <%#= post.user.name if post.user.name %>
+          </span>
         </p>
       </div>
       <div class="justify-end">
@@ -999,35 +1110,38 @@ def create_post_index
                   <%= link_to image_tag(post.main_image, title: "#{post.title.html_safe}", alt: "#{post.title} by #{post.user.name}", class: "hover07 mb-4"), post %>
                 <% else %>
                   <!-- Show nothing -->
-                  <%= image_tag("placeholders/pictures/office.jpg", alt: "office", class: "mb-4") %>
+                  <%= link_to image_tag("placeholders/pictures/office.jpg", alt: "office", class: "mb-4"), post %>
                 <% end %>
                 <div class="px-5">
                   <small>
-                    <%#= time_ago_in_words(article.created_at) %>
                     <span class="text-teal-600 font-medium text-base">
                       <%= t".post_published" %>
                     </span> 
                     <%= icon("far", "calendar") %> 
-                    <%= post.created_at.strftime("%b %d, %Y") %> | 
+                    <%= post.created_at.strftime("%b.%Y") %> | 
                     <span class="text-yellow-600 font-medium text-base">
                       <%= t".post_updated" %>
                     </span> 
                     <%= icon("far", "clock") %> 
-                    <%= time_ago_in_words(post.updated_at) %> <%= t".post_time" %>,
+                    <%= post.updated_at.strftime("%l.%M %B.%Y") %> <%= t".post_time" %>,
 
                     <span class="text-blue-600 sm:text-green-600 text-base">
                       <%= t".created_by" %> 
                     </span>
                     <span class="text-sm">
                       <%= post.user.name unless post.user.name.blank? %>
+                      <%#= post.user.name if post.user.name %>
                     </span>
-                    <%#= post.user.name if post.user.name %>
+                    | 
+                    <%#= pluralize(@post.views, "View") %> | 0 Comments
+                    
                   </small>
                   <h3 class="text-xl my-3 font-heading">
                     <%= link_to post.title, post_path(post) %>
                   </h3>
                   <p class="text-gray-500">
                     <%= truncate(strip_tags(post.description.to_s), length:256, escape: false, omission: "... (continued)") %>
+                    <%#= post.description.to_plain_text.truncate_words(250) %>
                   </p>
                 </div>
                 <div class="px-4 mb-8 mt-4 lg:mb-0 justify-end">
@@ -1043,7 +1157,7 @@ def create_post_index
         <% end %>
       <% end %>
     </div>
-    <%== pagy_foundation_nav(@pagy).html_safe %>
+    <%== pagy_foundation_nav(@pagy).html_safe if @posts.count == 6 %>
   </section>'
   end
 end
@@ -1055,7 +1169,7 @@ def create_post_new
   append_to_file post_new do
   '<div class="font-sans container mt-10">
   <div class="w-full content-center flex shadow-lg flex-col bg-cover bg-center bg-white p-6 rounded pt-8 pb-1">
-    <div class="text-center text-grey mb-6">
+    <div class="text-center text-grey mb-2">
       <h1>New Post</h1>
     </div>
 
@@ -1072,7 +1186,7 @@ def create_post_edit
   append_to_file post_edit do
   '<div class="font-sans container mt-10">
   <div class="w-full content-center flex shadow-lg flex-col bg-cover bg-center bg-white p-6 rounded pt-8 pb-1">
-    <div class="text-center text-grey mb-6">
+    <div class="text-center text-grey mb-2">
       <h1>Edit Post</h1>
     </div>
 
@@ -1105,6 +1219,7 @@ end
 
 def add_sitemap
   rails_command "sitemap:install"
+  rails_command "sitemap:refresh"
 end
 
 def add_letter_opener
@@ -1193,7 +1308,6 @@ after_bundle do
   create_post_index
   create_post_new
   create_post_edit
-  add_cookies_eu
   add_errors
   remove_public_errors
   add_meta
@@ -1205,16 +1319,17 @@ after_bundle do
   add_action_text
   add_letter_opener
   add_user_avatar_url
+  add_post_avatar_url
   add_unique_slug
   add_unique_names
+  add_user_info
   add_rails_admin
 
   say 'Almost done! Now init `git` and `database`...'
   # Migrate
   rails_command "db:create"
-  #rails_command "db:migrate"
-
-  # Migrations must be done before this
+  rails_command "db:migrate"
+  rails_command "db:seed"
 
   # Commit everything to git
   git :init
@@ -1226,11 +1341,6 @@ after_bundle do
   say
   say "To get started with your new app by typing:", :green
   say "First cd #{app_name} - To switch to your new app's directory."
-  say
-  say "⚠  Attention: Please check the instructions in README.md file before either run: `rails db:migrate` or `rails s`.", :red
-  say "You must make changes in db/migrate/*_devise_create_users.rb by", :blue
-  say "Uncomment lines under: ## Trackable, ## Confirmable & ## Lockable for devise to work smoothly", :yellow
-  say "run: rails db:migrate", :green
   say
   say "Then initialize #{app_name} by using:"
   say "Running `./bin/webpack-dev-server` first then with another terminal run: `rails s` to start #{app_name} app...", :green
