@@ -20,4 +20,11 @@ class HomeController < ApplicationController
   def privacy
     @page_title = t('privacy_link')
   end
+
+  def download
+    send_file 'public/somefile_1.pdf', :type => "application/pdf", :filename => "somefile_1.pdf", status: 202
+  end
+  def download2
+    send_file 'public/somefile_2.pdf', :type => "application/pdf", :filename => "somefile_2.pdf", status: 202
+  end
 end

@@ -51,19 +51,15 @@ en:
         created_by: "by:"
         post_updated: "Updated:"
         post_published: "Published:"
-
-  #About page
-  about:
-    about_file_badge_new: New
-    about_file_text: Sign in to download the file.
-    tip_preview_btn: "Preview file."
-    preview_btn: "Preview file."
-    tip_download_pdf: "How to download file"
-    download_pdf: "Download file"
-    tip_view_1: "Preview file in English"
-    tip_view_2: "Preview file in Finnish"
-    or_text: "or"
-    view_pdf: "Preview file."
+    #About page
+    about:
+      about_file_badge_new: New
+      about_file_text: Sign in to download the file.
+      job_title: Back End Developer
+      pdf_btn: Other Document
+      download_file: My Document
+      tip_view_1: "File in English"
+      tip_view_2: "File in Finnish"
   #Contact Page
   contacts:
     new:
@@ -122,21 +118,22 @@ en:
     navbar:
       brand_name: "App Name"
       home_page: Home
-      about_nav: "About"
-      contact_nav: "Contact"
-      blog_page: "Blog"
-      lang_nav: "Select Language"
-      fi_lang: "Finnish"
-      en_lang: "English"
-      nav_greeting: "Hello"
-      admin_area: "Admin Dashboard"
-      account_set: "My account"
-      logout: "Sign out"
-      logout_title: "Sign Out your Account."
+      about_nav: About
+      contact_nav: Contact
+      blog_page: Blog
+      lang_nav: Select Language
+      fi_lang: Finnish
+      en_lang: English
+      nav_greeting: Hey
+      admin_area: Dashboard
+      user_invitation: Invite User
+      account_set: My account
+      logout: Sign out
+      logout_title: Sign Out your Account.
       sign_up: "Sing up"
-      sign_up_title: "Enjoy other services."
-      sign_in: "Sign in"
-      sign_in_title: "Get more services."
+      sign_up_title: Enjoy other services.
+      sign_in: Sign in
+      sign_in_title: Get more services.
   pagy:
     nav:
       prev: "&lsaquo;&nbsp;Prev"

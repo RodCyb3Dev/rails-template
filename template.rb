@@ -92,7 +92,7 @@ def add_gems
   end
 
   inject_into_file 'Gemfile', after: "gem 'web-console', '>= 3.3.0'" do
-  "\n  gem 'listen', '>= 3.0.5', '< 3.2'
+  "\n  gem 'listen', '~> 3.2'
   #gem 'spring'
   #gem 'spring-watcher-listen', '~> 2.0.0'
   gem 'wdm', '>= 0.1.0'
@@ -272,35 +272,6 @@ def add_users
 
   find_and_replace_in_file('config/initializers/devise.rb', '# config.authentication_keys = [:email]', 'config.authentication_keys = [:login]')
 
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.request_keys = []', 'config.request_keys = []')
-
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.clean_up_csrf_token_on_authentication = true', 'config.clean_up_csrf_token_on_authentication = true')
-
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.send_email_changed_notification = false', 'config.send_email_changed_notification = true')
-
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.send_password_change_notification = false', 'config.send_password_change_notification = true')
-
-  # Configuration for :invitable
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.invite_for = 2.weeks', 'config.invite_for = 2.weeks')
-
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.invitation_limit = 5', 'config.invitation_limit = 5')
-
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.invite_key = { email: /\A[^@]+@[^@]+\z/ }', 'config.invite_key = { email: /\A[^@]+@[^@]+\z/ }')
-
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.validate_on_invite = true', 'config.validate_on_invite = true')
-
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.allow_insecure_sign_in_after_accept = false', 'onfig.allow_insecure_sign_in_after_accept = true')
-
-  # Configuration for :confirmable
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.allow_unconfirmed_access_for = 2.days', 'config.allow_unconfirmed_access_for = 2.days')
-
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.confirm_within = 3.days', 'config.confirm_within = 3.days')
-
-  find_and_replace_in_file('config/initializers/devise.rb', '# config.confirmation_keys = [:email]', 'config.confirmation_keys = [:email]')
-
-  puts "modifying environment configuration files for Devise..."
-  gsub_file 'config/environments/development.rb', /# Don't care if the mailer can't send/, '# ActionMailer'
-
   ## development.rb
   inject_into_file 'config/environments/development.rb', after: 'Rails.application.configure do' do
     "\n  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }"
@@ -375,9 +346,30 @@ def add_user_invitation
 
   # Add Devise masqueradable to users
   inject_into_file("app/models/user.rb", "invitable, :", after: "devise :")
+end
 
-  puts "modifying environment configuration files for Devise..."
-  gsub_file 'config/environments/development.rb', /# Don't care if the mailer can't send/, '# config.scoped_views = true'
+## Configuration for Devise
+def changes_config_devise
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.request_keys = []', 'config.request_keys = []')
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.clean_up_csrf_token_on_authentication = true', 'config.clean_up_csrf_token_on_authentication = true')
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.send_email_changed_notification = false', 'config.send_email_changed_notification = true')
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.send_password_change_notification = false', 'config.send_password_change_notification = true')
+end
+
+## Configuration for :invitable
+def changes_devise_invitable
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.invite_for = 2.weeks', 'config.invite_for = 2.weeks')
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.invitation_limit = 5', 'config.invitation_limit = 5')
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.invite_key = { email: /\A[^@]+@[^@]+\z/ }', 'config.invite_key = { email: /\A[^@]+@[^@]+\z/ }')
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.validate_on_invite = true', 'config.validate_on_invite = true')
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.allow_insecure_sign_in_after_accept = false', 'config.allow_insecure_sign_in_after_accept = true')
+end
+
+## Configuration for :confirmable
+def changes_devise_confirmable
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.allow_unconfirmed_access_for = 2.days', 'config.allow_unconfirmed_access_for = 2.days')
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.confirm_within = 3.days', 'config.confirm_within = 3.days')
+  find_and_replace_in_file('config/initializers/devise.rb', '# config.confirmation_keys = [:email]', 'config.confirmation_keys = [:email]')
 end
 
 ## Assets.rb
@@ -551,6 +543,10 @@ def add_i18n_routes
   get '/privacy', to: 'home#privacy'
   get '/terms', to: 'home#terms'
   get '/auth/:provider/callback', to: 'sessions#create'
+
+  # file Download Links
+  match 'download', to: 'home#download', as: 'download', via: :get
+  match 'download', to: 'home#download2', as: 'download2', via: :get
 
   # rails_admin mount should be here!!!
   # Action cable for channels
@@ -894,7 +890,7 @@ def create_post_form
 
   <div class="field form-group">
     <%= form.label :seo_text %>
-    <%= form.rich_text_area :seo_text, :rows => 6, class: "form-control", placeholder: "Write your story" %>
+    <%= form.rich_text_area :seo_text, :rows => 6, class: "form-control", placeholder: "Short description for SEO" %>
     <%= form.error_for :seo_text, class:"text-red-600" %>
   </div>
 
@@ -1248,9 +1244,10 @@ end
 def add_pdfjs
   say 'Applying pdfjs_viewer-rails...'
   find_and_replace_in_file('Gemfile', "gem 'sass-rails', '>= 6'", "gem 'sass-rails', '~> 5.0'")
-  run "bundle update"
+  run "bundle update && gem install pdfjs_viewer-rails"
 
-  gem 'pdfjs_viewer-rails'
+  
+  #run "gem 'pdfjs_viewer-rails'"
   inject_into_file 'config/routes.rb', after: "mount ActionCable.server => '/cable'\n" do <<-EOF
   mount PdfjsViewer::Rails::Engine => "/pdfjs", as: 'pdfjs'
   EOF
@@ -1288,9 +1285,12 @@ add_gems
 
 after_bundle do
   set_application_name
-  stop_spring
+  #stop_spring
   add_users
   add_user_invitation
+  changes_config_devise
+  changes_devise_invitable
+  changes_devise_confirmable
   add_assets
   add_webpack
   add_features
@@ -1320,7 +1320,7 @@ after_bundle do
   add_mailer
   add_sitemap
   add_form_friendlier_errors
-  add_pdfjs
+  #add_pdfjs
   add_action_text
   add_letter_opener
   add_user_avatar_url

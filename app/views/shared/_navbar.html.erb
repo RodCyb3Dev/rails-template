@@ -84,11 +84,11 @@
             </button>
             <!-- Dropdown Body -->
             <div x-show.transition="open" x-on:click.away="open = false" class="absolute right-0 w-40 mt-2 py-2 bg-white border rounded shadow-xl">
-              <%= link_to edit_user_registration_path, class:"block px-4" do %>
+              <%= link_to edit_user_registration_path, class:"block transition-colors duration-200 block px-4 py-1 hover:bg-gray-300" do %>
                 <% if admin? %> 
-                  &nbsp; <span class="uppercase tracking-wide text-sm text-indigo-600 font-bold">ADMIN</span> 
+                  &nbsp; <span class="tracking-wide text-sm text-indigo-600 font-bold">Admin</span> 
                 <% else %>
-                  &nbsp; <span class="text-indigo-600 font-bold">Hei</span>
+                  &nbsp; <span class="text-indigo-600 font-bold"><%= t('.nav_greeting', :default => 'Hey') %></span>
                 <% end %>
                 <%= current_user.first_name %>! <!-- To get user's full name change first_name to name -->
               <% end %>
@@ -97,10 +97,10 @@
                   <hr></hr>
                 </div>
                 <%= link_to rails_admin_path, class: "transition-colors duration-200 block px-4 py-2 text-normal text-gray-900 rounded hover:bg-indigo-500 hover:text-white" do %>
-                  <i class="fas fa-user-shield"></i>&nbsp; Admin Dashboard
+                  <%= icon('fas', 'user-shield', t('.admin_area', :default => 'Kojelauta'))%>
                 <%end%>
                 <%= link_to new_user_invitation_path, class: "transition-colors duration-200 block px-4 py-2 text-normal text-gray-900 rounded hover:bg-indigo-500 hover:text-white" do %>
-                  <i class="far fa-paper-plane"></i>&nbsp; Invite
+                  <%= icon('far', 'paper-plane', t('.user_invitation', :default => 'Invite User')) %>
                 <% end %>
               <% end %>
 
@@ -109,26 +109,21 @@
               </div>
 
               <%= link_to edit_user_registration_path, title: "#{current_user.name.to_s.humanize} account settings", class: "transition-colors duration-200 block px-4 py-2 text-normal text-gray-900 rounded hover:bg-indigo-500 hover:text-white" do %>
-                <i class="fas fa-user-cog"></i>&nbsp; Settings
+                <%= icon('fas', 'user-cog', t('.account_set', :default => 'Settings')) %>
               <% end %>
               <div class="py-2">
                 <hr></hr>
               </div>
-              <%= link_to destroy_user_session_path, method: :delete, title: 'Logout', class:"transition-colors duration-200 block px-4 py-2 text-normal text-gray-900 rounded hover:bg-indigo-500 hover:text-white" do %>
-                <i class="fas fa-sign-out-alt"></i>&nbsp; Logout
-              <% end %>
+              <%= link_to icon('fas', 'sign-out-alt', t('.logout', :default => 'Logout')), destroy_user_session_path, method: :delete, title: t('.logout_title'), class:"transition-colors duration-200 block px-4 py-2 text-normal text-gray-900 rounded hover:bg-yellow-500 hover:text-white" %>
             </div>
             <!-- // Dropdown Body -->
           </div>
           <!-- // Dropdown -->
         </div>
       <% else %>
-        <%= link_to new_user_registration_path, title: 'Nauti muista palveluista', class:"block lg:inline-block mt-4 lg:mt-0 lg:mr-8 text-blue-900 hover:text-blue-700" do %>
-          <i class="fas fa-user-plus"></i>&nbsp; <%= t'.sign_up', :default => "Register" %>
-        <% end %>
-        <%= link_to new_user_session_path, title: 'Hanki lisää palveluita', class:"inline-block py-3 px-6 mt-4 lg:mt-0 leading-none text-white hover:text-white bg-indigo-500 hover:bg-indigo-600 rounded shadow" do %>
-          <i class="fas fa-sign-in-alt"></i>&nbsp; <%= t'.sign_in', :default => "Sign In" %>
-        <% end %>
+        <%= link_to icon('fas', 'user-plus', t('.sign_up', :default => 'Register')), new_user_registration_path, title: t('.sign_up_title'), class:"block lg:inline-block mt-4 lg:mt-0 lg:mr-8 text-blue-900 hover:text-blue-700" %>
+        
+        <%= link_to icon('fas', 'sign-in-alt', t('.sign_in', :default => 'Sign In')), new_user_session_path, title: t('.sign_in_title'), class:"inline-block py-3 px-6 mt-4 lg:mt-0 leading-none text-white hover:text-white bg-indigo-500 hover:bg-indigo-600 rounded shadow" %>
       <% end %>
     </div>
   </div>

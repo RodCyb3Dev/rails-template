@@ -31,6 +31,8 @@ Kodeflash is a Rails template will generated with Tailwind CSS by [Rodney H](htt
 You'll need the following installed to run the template successfully:
 
 - Ruby 2.5 or higher
+- Tested with Rails 6.0.3.4
+- Node.js 12.19.0 \* Note! use Recommended version
 - Redis - For ActionCable support
 - bundler - `gem install bundler`
 - rails - `gem install rails`
@@ -41,7 +43,9 @@ You'll need the following installed to run the template successfully:
 1. **Create your application from the template.**
 
 ```bash
-rails new sample-app -d postgresql -m https://raw.githubusercontent.com/Rodcode47/kodeflash-Rails-template/master/template.rb
+rails new sample-app \
+  -d postgresql \
+  -m https://raw.githubusercontent.com/Rodcode47/kodeflash-Rails-template/master/template.rb
 ```
 
 ⚠ If for some reason the URL above fails, we recommend you have downloaded this repo, you can reference template.rb locally by:
@@ -66,30 +70,14 @@ rails new sample-app -d postgresql -m template.rb
 
 ======
 
-4. **Application is running great! and I registered a User**
+4. **Application is running great! and I registered a new User and give admin privileges**
 
-- Now that the User is registered you can give admin privileges by changing attributes to `admin: true` & `role: admin`, to do this:
-- Open terminal within your application dir run: `rails c`
-
-```ruby
-# Check if user or users exists:
-User.all
-# Or
-User.first
-
-# Make attributes changes:
-User.last.update!(admin: true)
-User.last.update!(role: "admin")
-
-# To delete the user:
-User.last.destroy!
-```
-
-- Ctrl + D to exit
-
-Okay, if you refresh the application and click user icon from navbar you should now see Admin dashboard & invite.
-
-- Now that there is an admin User in the future this admin can simply use the Admin dashboard to change privileges under User section.
+- The application has an initial Admin User registered and all you need to do is to:
+- Register a new User, once the created User is able to login and then logout.
+- Check the seeds.rb file to find the default Admin User login info, either `Username/Email` plus `Password` can login.
+- Now click user icon from navbar you should now see Dashboard & also Invite User.
+- Click Dashboard and within the Dashboard click the User tab from the side navbar.
+- Now click the edit icon for user you want to give admin rights and set privileges, admin `checked` & role: `admin`, then Save.
 
 ### Once installed what do I get?
 

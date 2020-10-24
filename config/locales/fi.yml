@@ -51,19 +51,15 @@ fi:
         created_by: "Luonut:"
         post_updated: "Päivitys"
         post_published: "Julkaistu"
-
-  #About page
-  about:
-    about_file_badge_new: Uusi
-    about_file_text: Kirjaudu sisään ladataksesi tiedoston.
-    tip_preview_btn: "Esikatsele tiedosto."
-    preview_btn: "Esikatsele tiedosto."
-    tip_download_pdf: "Kuinka ladata tiedosto."
-    download_pdf: "Lataa tiedosto."
-    tip_view_1: "Esikatselutiedosto englanniksi."
-    tip_view_2: "Esikatselutiedosto suomeksi."
-    or_text: "tai"
-    view_pdf: "Esikatsele tiedosto."
+   #About page
+    about:
+      about_file_badge_new: Uusi
+      about_file_text: Kirjaudu sisään ladataksesi tiedoston.
+      job_title: Back End -kehittäjä
+      pdf_btn: Muu asiakirja
+      download_file: Oma asiakirja
+      tip_view_1: "Esikatselutiedosto englanniksi."
+      tip_view_2: "Esikatselutiedosto suomeksi."
   #views/contact/index.html.erb
   contacts:
     new:
@@ -127,23 +123,24 @@ fi:
 
     #views/shared/_navbar
     navbar:
-      brand_name: "App Nimi"
+      brand_name: App Nimi
       home_page: Etusivu
-      about_nav: "Meistä"
-      contact_nav: "Ottaa yhteyttä"
+      about_nav: Meistä
+      contact_nav: Ottaa yhteyttä
       blog_page: Blogit
-      lang_nav: "Valitse kieli"
-      fi_lang: "Suomi"
-      en_lang: "Englanti"
-      nav_greeting: "Hei"
-      admin_area: "Admin-kojelauta"
-      account_set: "Tilini"
-      notice_alart: "ilmoitukset"
-      logout_title: "Kirjaudu ulos tililtäsi"
-      sign_up: "Rekisteröidy"
-      sign_up_title: "Nauti muista palveluista"
-      sign_in: "Kirjaudu sisään"
-      sign_in_title: "Hanki lisää palveluita"
+      lang_nav: Valitse kieli
+      fi_lang: Suomi
+      en_lang: Englanti
+      nav_greeting: Hei
+      admin_area: kojelauta
+      user_invitation: Kutsu käyttäjä
+      account_set: Asetukset
+      logout: Kirjaudu ulos
+      logout_title: Kirjaudu ulos tililtäsi
+      sign_up: Rekisteröidy
+      sign_up_title: Nauti muista palveluista
+      sign_in: Kirjaudu sisään
+      sign_in_title: Hanki lisää palveluita
   pagy:
     nav:
       prev: "&lsaquo;&nbsp;Edellinen"

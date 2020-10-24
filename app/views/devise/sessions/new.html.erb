@@ -18,10 +18,10 @@
       <form class="max-w-md mb-4 form-input">
         <div class="rounded-md shadow-sm">
           <div class="mb-4">
-            <label class="block text-grey-darker text-sm font-bold mb-2" for="password">
+            <label class="block text-grey-darker text-sm font-bold mb-2" for="login">
               <%= t'.email', :default => 'Eamil or Username' %>
             </label>
-            <%= f.text_field :login, autofocus: true, placeholder: t('.email', :default => 'Eamil or Username'), id: "password", type: "email", class: 'appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 sm:text-sm sm:leading-5' %>
+            <%= f.text_field :login, autofocus: true, placeholder: t('.email', :default => 'Eamil or Username'), class: 'appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 sm:text-sm sm:leading-5' %>
           </div>
           <div class="-mt-px">
             <label class="block text-grey-darker text-sm font-bold mb-2" for="password">

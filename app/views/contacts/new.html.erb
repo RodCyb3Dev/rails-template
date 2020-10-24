@@ -26,7 +26,7 @@
         <%= render :partial => 'contacts/form' %>
       <% else %>
         <h4 class="font-bold break-normal text-center text-2xl md:text-2xl mx-4">
-          <%= link_to_if(@current_user.nil?, t('.contact_note'), new_user_session_path, class: 'inline-block w-full py-4 px-8 leading-none text-white bg-indigo-500 hover:bg-indigo-600 rounded shadow') %>
+          <%= link_to_if(@current_user.nil?, t('.contact_note'), new_user_session_path, class: 'inline-block w-full py-4 px-8 leading-none text-white hover:text-gray-700 bg-indigo-500 hover:bg-indigo-300 rounded shadow') %>
         </h4>
       <% end %>
     </div>

@@ -5,15 +5,12 @@
 <!-- Nothing to display -->
 <% else %>
   <!-- Show download  alert Modern with Badge -->
-  <div
-    class="float-right p-2 mt-2 mr-24 bg-indigo-800 text-indigo-100 leading-none lg:rounded-full flex lg:inline-flex"
-    role="alert">
-    <span
-      class="flex rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold mr-3">
+  <div class="float-right p-2 mt-2 mr-24 bg-indigo-800 hover:bg-indigo-500 text-indigo-100 leading-none lg:rounded-full flex lg:inline-flex" role="alert">
+    <span class="flex rounded-full text-gray-700 bg-yellow-500 uppercase px-2 py-1 text-xs font-bold mr-3">
       <%= t".about_file_badge_new", :default => 'New' %>
     </span>
     <span class="font-semibold mr-2 text-left flex-auto">
-      <%= link_to_if(@current_user.nil?, icon('fas', 'download', t('.about_file_text', :default => "Sign in to download my CV")), new_user_session_path, class: 'text-white') %>
+      <%= link_to_if(@current_user.nil?, icon('fas', 'download', t('.about_file_text', :default => "Sign in to download my CV")), new_user_session_path, class: 'text-white hover:text-white') %>
     </span>
     <svg class="fill-current opacity-75 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
       <path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z" />
@@ -32,7 +29,7 @@
         <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:leading-9 sm:truncate">
           Michael Scott
         </h2>
-        <span class="text-xl">Back End Developer</span>
+        <span class="text-xl"><%= t('.job_title', :default => 'Back End Developer') %></span>
 
         <!-- Preview & Download Button -->
         <% if current_user %>
@@ -43,16 +40,17 @@
               <%= link_to locale: "en" do %>
                 <!-- View File -->
                 <div class="mt-2 flex items-center text-sm leading-5 text-gray-500 sm:mr-6">
-                  <i class="flex-shrink-0 text-gray-400 fas fa-file-pdf" id="clicks"></i>
-                  <%= link_to pdfjs.full_path(file: "/somefile_1.pdf".html_safe).to_s, class: 'font-medium text-indigo-500 hover:text-indigo-600 transition duration-150 ease-in-out', target: "_new" do %>
-                    &nbsp; <%= t'.pdf_buk_btn', :default => "View PDF" %> &nbsp;<i class="gb uk flag"></i>
+                  <%= link_to download_path, title: t('.tip_view_1'), class: 'block px-4 py-2 mb-2 text-sm leading-5 text-gray-700 bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out' do %>
+                    <%= icon('fas', 'file-pdf', t('.pdf_btn', :default => 'Other Document')) %> &nbsp;
+                    <i class="gb uk flag"></i>
                   <% end %>
                 </div>
 
                 <!-- Download File -->
                 <div class="mt-2 flex items-center text-sm leading-5 text-gray-500">
-                  <%= link_to '/somefile_2.pdf', class: "block px-4 py-2 mb-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out", :target => '_blank' do %>
-                    <i class="flex-shrink-0 text-gray-400 fas fa-download" id="clicks"></i>&nbsp; <%= t'.download_file', :default => "Download PDF" %>&nbsp; <i class="gb uk flag"></i>
+                  <%= link_to '/somefile_1.pdf', title: t('.tip_view_1'), class: "block px-4 py-2 mb-2 text-sm leading-5 text-gray-700 bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out" do %>
+                    <%= icon('fas', 'download', t('.download_file', :default => 'My Document')) %>&nbsp;
+                    <i class="gb uk flag"></i>
                   <% end %>
                 </div>
               <% end %>
@@ -61,15 +59,16 @@
               <%= link_to locale: "fi" do %>
                 <!-- View File -->
                 <div class="mt-2 flex items-center text-sm leading-5 text-gray-500 sm:mr-6">
-                  <i class="flex-shrink-0 text-gray-400 fas fa-file-pdf" id="clicks"></i>
-                  <%= link_to pdfjs.full_path(file: "/somefile_2.pdf".html_safe).to_s, class: 'font-medium text-indigo-500 hover:text-indigo-600 transition duration-150 ease-in-out', target: "_new" do %>
-                    &nbsp; <%= t'.pdf_buk_btn', :default => "View PDF" %> &nbsp;<i class="fi flag"></i>
+                  <%= link_to download_path, title: t('.tip_view_2'), class: 'block px-4 py-2 mb-2 text-sm leading-5 text-gray-700 bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out' do %>
+                    <%= icon('fas', 'file-pdf', t('.pdf_btn', :default => 'Other Document')) %> &nbsp;
+                    <i class="fi flag"></i>
                   <% end %>
                 </div>
                 <!-- Download File -->
-                <div class="mt-2 flex items-center text-sm leading-5 text-gray-500 sm:mr-6">
-                  <%= link_to '/somefile_2.pdf', class: "block px-4 py-2 mb-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out", :target => '_blank' do %>
-                    <i class="flex-shrink-0 text-gray-400 fas fa-download" id="clicks"></i>&nbsp; <%= t'.download_file', :default => "Download PDF" %>&nbsp;<i class="fi flag"></i>
+                <div class="mt-2 flex items-center text-sm leading-5 text-gray-500">
+                  <%= link_to '/somefile_2.pdf', title: t('.tip_view_1'), class: "block px-4 py-2 mb-2 text-sm leading-5 text-gray-700 bg-gray-100 hover:bg-indigo-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out" do %>
+                    <%= icon('fas', 'download', t('.download_file', :default => 'My Document')) %>&nbsp;
+                    <i class="fi flag"></i>
                   <% end %>
                 </div>
               <% end %>
