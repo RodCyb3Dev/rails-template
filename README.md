@@ -48,7 +48,7 @@ rails new sample-app \
   -m https://raw.githubusercontent.com/Rodcode47/kodeflash-Rails-template/master/template.rb
 ```
 
-⚠ If for some reason the URL above fails, we recommend you have downloaded this repo, you can reference template.rb locally by:
+⚠ We recommend you have downloaded this repo, you can reference template.rb locally by:
 
 - unzip the downloaded file (kodeflash-Rails-template).
 - cd kodeflash-Rails-template
